@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DSM_Edu">
         <activity
+            android:name=".CameraXActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InitActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

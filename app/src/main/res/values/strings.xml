@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DSM_Edu</string>
+    <string name="main_driving_start_button">Start Driving Mod</string>
+    <string name="init_start_monitor_button">Start Monitoring</string>
+
+    <string name="main_page_title">DSM Cognitive Calculation Application</string>
+
+    <string name="init_page_title">Initialization Process</string>
+    <string name="init_page_description">TODO \nImplement Personalized cognitive resource \ncapability init process</string>
 </resources>
