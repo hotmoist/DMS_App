@@ -11,6 +11,6 @@ public class InitActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
-        findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, CameraXActivity.class) ));
+        findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, AbstractCameraXActivity.class) ));
     }
 }
