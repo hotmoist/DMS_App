@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.forgroundtest.RIS_DSM" >
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -10,10 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DSM_Edu" >
         <activity
-            android:name=".BaseModuleActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AbstractCameraXActivity"
+            android:name=".PredictionActivity"
             android:exported="false" />
         <activity
             android:name=".InitActivity"
@@ -28,7 +27,5 @@
             </intent-filter>
         </activity>
     </application>
-
-    <uses-permission android:name="android.permission.CAMERA" />
 
 </manifest>
