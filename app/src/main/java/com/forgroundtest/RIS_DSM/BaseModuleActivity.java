@@ -4,8 +4,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class BaseModuleActivity extends AppCompatActivity {
@@ -48,5 +51,17 @@ public class BaseModuleActivity extends AppCompatActivity {
         } catch (InterruptedException e){
             Log.e("DMS_EDU", "Error on stopping background thread", e);
         }
+    }
+    @UiThread
+    protected void showErrorDialog(View.OnClickListener clickListener) {
+        final View view = InfoViewFactory.newErrorDialogView(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialog)
+                .setCancelable(false)
+                .setView(view);
+        final AlertDialog alertDialog = builder.show();
+        view.setOnClickListener(v -> {
+            clickListener.onClick(v);
+            alertDialog.dismiss();
+        });
     }
 }
