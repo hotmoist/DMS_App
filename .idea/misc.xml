@@ -3,9 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/drawable/bg_error_dialog.xml" value="0.326" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/drawable/ic_error_icon.xml" value="0.326" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/activity_base_module.xml" value="0.5651041666666666" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/activity_camera_xactivity.xml" value="0.5651041666666666" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/activity_init.xml" value="0.5651041666666666" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/activity_main.xml" value="0.5651041666666666" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/activity_prediction.xml" value="0.32447916666666665" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/error_dialog.xml" value="0.3234375" />
         <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/style.xml" value="0.5651041666666666" />
+        <entry key="..\:/Users/user/AndroidStudioProjects/DSM_Edu/app/src/main/res/layout/texture_view.xml" value="0.32447916666666665" />
       </map>
     </option>
   </component>

@@ -6,5 +6,6 @@
     <string name="main_page_title">DSM Cognitive Calculation Application</string>
 
     <string name="init_page_title">Initialization Process</string>
+    <string name="error_dialog_text">Sorry there was an error.</string>
     <string name="init_page_description">TODO \nImplement Personalized cognitive resource \ncapability init process</string>
 </resources>
