@@ -15,11 +15,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.ViewStub;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
+import android.widget.TextView;
 
 import org.pytorch.IValue;
 import org.pytorch.Module;
 import org.pytorch.Tensor;
 import org.pytorch.torchvision.TensorImageUtils;
+import org.w3c.dom.Text;
 
 import java.nio.FloatBuffer;
 
@@ -71,7 +75,9 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        TextView text = (TextView) findViewById(R.id.textview_test);
+        RotateAnimation rotate = (RotateAnimation) AnimationUtils.loadAnimation(this, R.anim.roation_animation);
+        text.setAnimation(rotate);
     }
 
     protected String getModuleAssetName() {
