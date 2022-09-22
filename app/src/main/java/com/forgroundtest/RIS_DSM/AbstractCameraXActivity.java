@@ -5,10 +5,12 @@ import androidx.annotation.NonNull;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.audiofx.PresetReverb;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -49,11 +51,6 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                     PERMISSIONS,
                     REQUEST_CODE_CAMERA_PERMISSION);
         } else {
-            Toast.makeText(
-                    this,
-                    "Permission Granted!!",
-                    Toast.LENGTH_LONG
-            ).show();
             setupCameraX();
         }
     }
@@ -71,11 +68,6 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                 ).show();
                 finish();
             } else {
-                Toast.makeText(
-                        this,
-                        "Permission Granted",
-                        Toast.LENGTH_LONG
-                ).show();
                 setupCameraX();
             }
         }
@@ -93,6 +85,7 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
             parent.removeView(textureView);
             parent.addView(textureView, 0);
             textureView.setSurfaceTexture(output.getSurfaceTexture());
+            updateTransform();
         });
 
         final ImageAnalysisConfig imageAnalysisConfig =
@@ -118,6 +111,39 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                 });
 
         CameraX.bindToLifecycle(this, preview, imageAnalysis);
+    }
+
+    private void updateTransform(){
+        // 필요한가??
+        Matrix matrix = new Matrix();
+        final TextureView textureView = getCameraPreviewTextureView();
+        float w = textureView.getMeasuredWidth();
+        float h = textureView.getMeasuredHeight();
+
+        float centerX = w / 2f;
+        float centerY = h / 2f;
+
+        int rotationDgr = 0;
+        int rotation = (int)getCameraPreviewTextureView().getRotation();
+
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                break;
+            case Surface.ROTATION_90:
+                rotationDgr = 90;
+                break;
+            case Surface.ROTATION_180:
+                rotationDgr = 180;
+                break;
+            case Surface.ROTATION_270:
+                rotationDgr = 270;
+                break;
+            default:
+                return;
+        }
+        Toast.makeText(this,rotation + "", Toast.LENGTH_LONG).show();
+        matrix.postRotate((float)rotationDgr, centerX, centerY);
+        textureView.setTransform(matrix);
     }
 
     @WorkerThread
