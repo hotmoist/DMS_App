@@ -7,16 +7,26 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
+import androidx.core.view.WindowCompat;
 
+import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.pytorch.IValue;
@@ -61,6 +71,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private long mMovingAvgSum = 0;
     private Queue<Long> mMovingAvgQueue = new LinkedList<>();
 
+    private LinearLayout layout;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -75,9 +86,30 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TextView text = (TextView) findViewById(R.id.textview_test);
-        RotateAnimation rotate = (RotateAnimation) AnimationUtils.loadAnimation(this, R.anim.roation_animation);
-        text.setAnimation(rotate);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if(Build.VERSION.SDK_INT >= 30){
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        }
+
+        layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
+        int w = layout.getWidth();
+        int h = layout.getHeight();
+
+        layout.setRotation(270.0f);
+        layout.setTranslationX((w - h) / 2);
+        layout.setTranslationY((h - w) /2 );
+
+        ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
+        lp.height = w*2 ;
+        lp.width = h*2;
+        layout.requestLayout();
+
+
+
+//        TextView text = (TextView) findViewById(R.id.textview_test);
+//        RotateAnimation rotate = (RotateAnimation) AnimationUtils.loadAnimation(this, R.anim.roation_animation);
+//        text.setAnimation(rotate);
     }
 
     protected String getModuleAssetName() {
