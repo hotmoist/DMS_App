@@ -9,19 +9,41 @@
     android:orientation="vertical">
 
         <TextView
-            android:id="@+id/prediction_result_textview"
-            android:text="[Predicted Label]\n NONE"
+            android:text="[Predicted Label]"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:gravity="center"
             />
+        <TextView
+            android:id="@+id/prediction_result_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NONE"
+            android:textColor="@color/white"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:text="[Cognitive capability]"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:gravity="center"/>
 
         <TextView
             android:id="@+id/cognitive_capability_textview"
-            android:text="[Cognitive capability]\n NONE"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="NONE"
+            android:textColor="@color/white"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="[Current Speed]"
             android:textColor="@color/white"
             android:gravity="center"/>
 
@@ -29,27 +51,44 @@
             android:id="@+id/speed_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="[Current Speed] NONE"
+            android:text="NONE"
             android:textColor="@color/white"
-            android:gravity="center"/>
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="[Current Gyro]"
+            android:textColor="@color/white"
+            android:gravity="center"
+            />
 
         <TextView
             android:id="@+id/gyro_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="[Current Gyro] \nNONE"
+            android:text="NONE"
             android:textColor="@color/white"
             android:gravity="center"
             />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="[Calculated result]"
+            android:gravity="center"
+            />
+
         <TextView
             android:id="@+id/result_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
-            android:text="[Calculated result] \n NONE"
+            android:text="NONE"
             android:gravity="center"
             />
-
     </LinearLayout>
 
 
