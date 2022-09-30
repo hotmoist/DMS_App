@@ -141,7 +141,6 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
             default:
                 return;
         }
-        Toast.makeText(this,rotation + "", Toast.LENGTH_LONG).show();
         matrix.postRotate((float)rotationDgr, centerX, centerY);
         textureView.setTransform(matrix);
     }
