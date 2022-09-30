@@ -63,6 +63,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         }
     }
 
+    private TextView mResultText;
+
     private boolean mAnalyzeImageErrorState;
     private Module mModule;
     private String mModuleAssetName;
@@ -105,11 +107,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         lp.width = h*2;
         layout.requestLayout();
 
+        mResultText = findViewById(R.id.prediction_result_textview);
 
-
-//        TextView text = (TextView) findViewById(R.id.textview_test);
-//        RotateAnimation rotate = (RotateAnimation) AnimationUtils.loadAnimation(this, R.anim.roation_animation);
-//        text.setAnimation(rotate);
     }
 
     protected String getModuleAssetName() {
@@ -182,6 +181,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
+        mResultText.setText(result.topNClassNames[0]);
     }
 
     @Override
