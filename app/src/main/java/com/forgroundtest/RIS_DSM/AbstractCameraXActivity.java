@@ -26,7 +26,10 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.core.app.ActivityCompat;
 
-
+/**
+ * cameraX 설정 및 추론 모델 설정을 위한 Activity, 별개 레이아웃 없음
+ * @param <R> Analysis result
+ */
 public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 200;
     private static final String[] PERMISSIONS = {Manifest.permission.CAMERA};

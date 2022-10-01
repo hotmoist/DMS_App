@@ -37,6 +37,11 @@ import org.w3c.dom.Text;
 
 import java.nio.FloatBuffer;
 
+/**
+ * 운전자 인지 자원 측정을 위한 Activity
+ * layout : activity_prediction.xml
+ */
+
 public class PredictionActivity extends AbstractCameraXActivity<PredictionActivity.AnalysisResult> {
 
     public static final String INTENT_MODULE_ASSET_NAME = "INTENT_MODULE_ASSET_NAME";
@@ -179,6 +184,12 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         return null;
     }
 
+    /**
+     * 결과값 UI에 반영하기 위한 메소드
+     * UI Thread 에 의해 적용
+     * UI 요소는 cognitive_result_page.xml 참고
+     * @param result 추론 결과
+     */
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
         mResultText.setText(result.topNClassNames[0]);

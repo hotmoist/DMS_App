@@ -6,6 +6,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
+/**
+ * 최초 화면을 나타내는 Activity
+ * layout : activity_main.xml
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
