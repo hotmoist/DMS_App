@@ -22,6 +22,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -73,7 +74,8 @@ public class BaseModuleActivity extends AppCompatActivity {
     public Intent intent;
     public RecognitionListener STTListener = null;
     public final int PERMISSION = 1;
-    private EditText fileNameEdit = null;
+    public EditText fileNameEdit = null;
+    public Button csvBtn;
 
     Timer timer;
     TimerTask timerTask;

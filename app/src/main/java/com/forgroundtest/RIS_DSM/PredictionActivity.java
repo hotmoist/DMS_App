@@ -124,6 +124,10 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
 
+        fileNameEdit = findViewById(R.id.CSV_name);
+        csvBtn = findViewById(R.id.start_csv);
+        csvBtn.setOnClickListener(view->{startCsvButton();});
+
     }
 
     protected String getModuleAssetName() {
