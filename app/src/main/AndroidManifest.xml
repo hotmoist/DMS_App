@@ -20,7 +20,9 @@
 
         <activity
             android:name=".PredictionActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"
+            />
         <activity
             android:name=".InitActivity"
             android:exported="false" />

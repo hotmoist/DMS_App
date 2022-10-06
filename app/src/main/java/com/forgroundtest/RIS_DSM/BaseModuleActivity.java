@@ -11,6 +11,10 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * 추론 모델을 위한 background 쓰레드 적용 Activity
+ */
+
 public class BaseModuleActivity extends AppCompatActivity {
 
     protected HandlerThread mBackgroundThread;

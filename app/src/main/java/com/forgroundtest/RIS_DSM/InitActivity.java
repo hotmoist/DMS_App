@@ -24,6 +24,13 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.Locale;
 
+/**
+ * 운전자의 상태 파악을 위한 Activity
+ * layout : activity_init.xml
+ *
+ * TODO: N back test 구현 필요
+ */
+
 public class InitActivity extends AppCompatActivity {
 
     private ArrayList<SettingData> testList;
