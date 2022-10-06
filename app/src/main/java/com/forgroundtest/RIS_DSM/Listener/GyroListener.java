@@ -14,15 +14,6 @@ public class GyroListener implements SensorEventListener {
     private KalmanFilter mKalmanGyroX = new KalmanFilter(0.0f);;
     private KalmanFilter mKalmanGyroY = new KalmanFilter(0.0f);;
 
-    TextView GyroX;
-    TextView GyroY;
-    TextView GyroZ;
-
-    public GyroListener(TextView x, TextView y, TextView z){
-        GyroX = x;
-        GyroY = y;
-        GyroZ = z;
-    }
     @Override
     public void onSensorChanged(SensorEvent event) {
 
@@ -45,11 +36,6 @@ public class GyroListener implements SensorEventListener {
         Value.GYRO_X = filteredX;
         Value.GYRO_Y = filteredY;
         Value.GYRO_Z = filteredZ;
-        if( event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
-            GyroX.setText(String.format("%.2f", Value.GYRO_X)+"");
-            GyroY.setText(String.format("%.2f", Value.GYRO_Y)+"");
-            GyroZ.setText(String.format("%.2f", Value.GYRO_Z)+"");
-        }
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

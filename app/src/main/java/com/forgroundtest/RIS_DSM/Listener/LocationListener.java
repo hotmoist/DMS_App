@@ -16,17 +16,12 @@ public class LocationListener implements android.location.LocationListener {
     private Context mContext = null;
     private double mSpeed = 0;
     private double beforeSpeed = 0;
-    private TextView GPSName = null;
-    private TextView GPSSpeedTextView = null;
 
     LocationRequest lr;
 
 
-    public LocationListener(Context c, TextView GPSSpeedTextView, TextView GPSName, double mSpeed){
+    public LocationListener(Context c){
         this.mContext = c;
-        this.GPSSpeedTextView = GPSSpeedTextView;
-        this.GPSName = GPSName;
-        this.mSpeed = mSpeed;
     }
     /**
      * callback function
@@ -38,10 +33,8 @@ public class LocationListener implements android.location.LocationListener {
     @Override
     public void onLocationChanged(Location location) {
         
-        GPSName.setText(location.getProvider());
         Value.SPEED = location.getSpeed()*3.6;
 
-        GPSSpeedTextView.setText(String.format("%.2f", Value.SPEED)+""+location.hasSpeed()+"");
         Value.ACC = Value.SPEED - beforeSpeed;
         beforeSpeed = Value.SPEED;
         //        Toast.makeText(mContext, mSpeed+"", Toast.LENGTH_SHORT).show();

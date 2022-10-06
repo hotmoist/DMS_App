@@ -12,11 +12,9 @@ import java.util.ArrayList;
 public class STTListener implements RecognitionListener {
 
     private Context mContext = null;
-    private TextView textView = null;
 
     public STTListener(Context c, TextView textView) {
         this.mContext = c;
-        this.textView = textView;
     }
     @Override
     public void onReadyForSpeech(Bundle params) {
@@ -90,7 +88,6 @@ public class STTListener implements RecognitionListener {
                 results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
         for(int i = 0; i < matches.size() ; i++){
-            textView.setText(matches.get(i));
         }
     }
 
