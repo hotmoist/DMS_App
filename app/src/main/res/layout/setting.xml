@@ -15,8 +15,6 @@
             android:id="@+id/setting_icon"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:background=""
-            android:text=""
             android:layout_marginLeft="15dp"
             android:layout_gravity="center"
             />

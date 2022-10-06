@@ -1,5 +1,6 @@
 package com.forgroundtest.RIS_DSM;
 
+// data for nbackTest and english-learning-app
 public class SettingData {
     private int icon;
     private String menu;

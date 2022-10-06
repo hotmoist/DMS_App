@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-
+// universal Adapter in this project.
 public class Adapter extends BaseAdapter {
     Context mContext = null;
     LayoutInflater inflater = null;
