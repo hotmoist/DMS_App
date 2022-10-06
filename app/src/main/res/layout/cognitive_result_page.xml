@@ -41,6 +41,7 @@
             />
 
         <TextView
+            android:id="@+id/GPS_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="[Current Speed]"
@@ -57,6 +58,7 @@
             />
 
         <TextView
+            android:id="@+id/gyro_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="[Current Gyro]"

@@ -1,5 +1,7 @@
 package com.forgroundtest.RIS_DSM;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.location.LocationManager;
 import android.location.LocationRequest;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.speech.RecognitionListener;
@@ -19,6 +22,7 @@ import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -32,6 +36,10 @@ import com.forgroundtest.RIS_DSM.Listener.STTListener;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -65,6 +73,7 @@ public class BaseModuleActivity extends AppCompatActivity {
     public Intent intent;
     public RecognitionListener STTListener = null;
     public final int PERMISSION = 1;
+    private EditText fileNameEdit = null;
 
     Timer timer;
     TimerTask timerTask;
@@ -75,6 +84,12 @@ public class BaseModuleActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUIHandler = new Handler(getMainLooper());
+
+
+        resistSensor();
+        resistGyroSensor();
+        resistSTT();
+        resistLocation();
     }
 
     @Override
@@ -172,5 +187,75 @@ public class BaseModuleActivity extends AppCompatActivity {
 
 
         gyroListener = new GyroListener();
+    }
+
+    public void startCsvButton(){
+        if(START_CSV=!START_CSV) {
+            try {
+                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/" + fileNameEdit.getText().toString();
+                startDataToCsv(path);
+
+                timer = new Timer();
+                timerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        writer.writeNext(new String[]{
+                                getCurrentDateTime().toString(),
+                                +Value.SPEED+"",
+                                +Value.ACC+"",
+                                +Value.GYRO_X+"",
+                                +Value.GYRO_Y+"",
+                                +Value.GYRO_Z+"",
+                                +Value.LIGHT+""}
+                        );
+                    }
+                };
+                Toast.makeText(this,"저장을 시작합니다.",Toast.LENGTH_SHORT).show();
+                timer.schedule(timerTask,0,1000);
+//              writeDataToCsv(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/sample.csv");
+            } catch (IOException e) {
+                Toast.makeText(this.getApplicationContext(), "생성 실패", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                timerTask.cancel();
+                timer.cancel();
+                timer.purge();
+                Toast.makeText(this,"저장을 종료합니다.",Toast.LENGTH_SHORT).show();
+                stopDataToCsv();
+            } catch (IOException e) {
+                Toast.makeText(this.getApplicationContext(), "정지 실패", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+            }
+        }
+    }
+    public void startDataToCsv(String path) throws IOException {
+        file = new FileWriter(path,true);
+        writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+        String[] category = {"TIME", "SPEED", "ACC","GYRO_X","GYRO_Y","GYRO_Z","LIGHT"};
+        writer.writeNext(category);
+
+    }
+    public void stopDataToCsv() throws IOException{
+        writer.close();
+    }
+
+    public static String getCurrentDateTime() {
+        Date today = new Date();
+        Locale currentLocale = new Locale("KOREAN", "KOREA");
+        String pattern = "yyyyMMddHHmmss"; //hhmmss로 시간,분,초만 뽑기도 가능
+        SimpleDateFormat formatter = new SimpleDateFormat(pattern,
+                currentLocale);
+        return formatter.format(today);
     }
 }
