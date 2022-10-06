@@ -30,6 +30,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.pytorch.IValue;
 import org.pytorch.Module;
@@ -111,13 +112,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         int w = layout.getWidth();
         int h = layout.getHeight();
 
+        Toast.makeText(this, "weight: " + layout.getWidth() +"| height: " + layout.getHeight(), Toast.LENGTH_SHORT).show();
+
         layout.setRotation(270.0f);
-        layout.setTranslationX((w - h) / 2);
+        layout.setTranslationX((w - h) / 2 + 100);
         layout.setTranslationY((h - w) /2 );
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
-        lp.height = w*2 ;
-        lp.width = h*2;
+        lp.height = w*2;
+        lp.width = 600;
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
