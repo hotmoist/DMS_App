@@ -213,6 +213,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 String.format("X : %.2f ",Value.GYRO_X)+
                 String.format("Y : %.2f ",Value.GYRO_Y)+
                 String.format("Z : %.2f ",Value.GYRO_Z));
+        Value.RESULT = result.topNClassNames[0];
     }
 
     @Override

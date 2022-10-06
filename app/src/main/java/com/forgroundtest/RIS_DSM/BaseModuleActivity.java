@@ -201,6 +201,8 @@ public class BaseModuleActivity extends AppCompatActivity {
 
     public void startCsvButton(){
         if(START_CSV=!START_CSV) {
+
+
             try {
                 String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/" + fileNameEdit.getText().toString();
                 startDataToCsv(path);
@@ -216,7 +218,7 @@ public class BaseModuleActivity extends AppCompatActivity {
                                 +Value.GYRO_X+"",
                                 +Value.GYRO_Y+"",
                                 +Value.GYRO_Z+"",
-                                +Value.LIGHT+""}
+                                Value.RESULT}
                         );
                     }
                 };
@@ -252,7 +254,19 @@ public class BaseModuleActivity extends AppCompatActivity {
  *                      +Value.GYRO_Z+","
  *                      +Value.LIGHT
  */
-        String[] category = {"TIME", "SPEED", "ACC","GYRO_X","GYRO_Y","GYRO_Z","LIGHT"};
+        writer.writeNext(new String[]{
+                "time",
+                "index",
+                "correct",
+                "start time",
+                "speaking time",});
+        writer.writeNext(new String[]{
+                getCurrentDateTime().toString(),
+                Value.END,
+                Value.isCorrect+"",
+                Value.delayToSpeak+"",
+                Value.delayDuringSpeak+"",});
+        String[] category = {"TIME", "SPEED", "ACC","GYRO_X","GYRO_Y","GYRO_Z","RESULT"};
         writer.writeNext(category);
 
     }
