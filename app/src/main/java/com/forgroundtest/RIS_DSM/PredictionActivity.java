@@ -88,6 +88,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mGyroName;
     private TextView mGyroValue;
 
+    private com.google.android.material.button.MaterialButton appStartingBtn;
+
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.activity_prediction;
@@ -131,6 +133,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         csvBtn = findViewById(R.id.start_csv);
         csvBtn.setOnClickListener(view->{startCsvButton();});
 
+        // 영어학습 앱으로 전환
+        appStartingBtn = findViewById(R.id.appStartingBtn);
+        appStartingBtn.setRotation(270.0f);
+        appStartingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // englishLearningFragment로 전환
+            }
+        });
     }
 
     protected String getModuleAssetName() {

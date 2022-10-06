@@ -8,7 +8,30 @@
     android:fitsSystemWindows="true"
     >
 
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/englishAppView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/prediction_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/appStartingBtn"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="run"
+            android:backgroundTint="#464646"
+            app:layout_constraintStart_toStartOf="@+id/englishAppView"
+            app:layout_constraintEnd_toEndOf="@id/englishAppView"
+            app:layout_constraintTop_toTopOf="@+id/englishAppView"
+            app:layout_constraintBottom_toBottomOf="@+id/englishAppView" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--<TextView
         android:id="@+id/textview_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,10 +43,11 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />-->
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/prediction_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
