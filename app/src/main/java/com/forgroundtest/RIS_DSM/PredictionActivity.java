@@ -8,7 +8,10 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.WindowCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -89,6 +92,10 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mGyroValue;
 
     private com.google.android.material.button.MaterialButton appStartingBtn;
+    private ConstraintLayout englishAppView;
+    private EnglishAppFragment englishAppFragment;
+    private FragmentManager fm;
+    private FragmentTransaction fTran;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -134,12 +141,18 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         csvBtn.setOnClickListener(view->{startCsvButton();});
 
         // 영어학습 앱으로 전환
+        englishAppView = findViewById(R.id.englishAppView);
+        englishAppView.setRotation(270.0f);
+        fm = getSupportFragmentManager();
+        fTran = fm.beginTransaction();
+        englishAppFragment = new EnglishAppFragment();
         appStartingBtn = findViewById(R.id.appStartingBtn);
-        appStartingBtn.setRotation(270.0f);
         appStartingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // englishLearningFragment로 전환
+                fTran.replace(R.id.englishApp, englishAppFragment);
+                fTran.commit();
             }
         });
     }

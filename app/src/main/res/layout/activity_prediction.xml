@@ -16,6 +16,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+        
+        <FrameLayout
+            android:id="@+id/englishApp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@+id/englishAppView"
+            app:layout_constraintBottom_toBottomOf="@+id/englishAppView"
+            app:layout_constraintStart_toStartOf="@id/englishAppView"
+            app:layout_constraintEnd_toEndOf="@id/englishAppView"
+            />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/appStartingBtn"
