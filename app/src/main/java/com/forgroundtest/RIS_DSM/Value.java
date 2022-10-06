@@ -7,4 +7,9 @@ public class Value {
     static public double GYRO_Y=0;
     static public double GYRO_Z=0;
     static public double LIGHT=0;
+
+    static public String END="";
+    static public String isCorrect="";
+    static public String delayToSpeak="";
+    static public String delayDuringSpeak="";
 }

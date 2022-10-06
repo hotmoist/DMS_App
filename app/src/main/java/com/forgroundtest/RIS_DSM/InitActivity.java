@@ -263,6 +263,10 @@ public class InitActivity extends AppCompatActivity {
 //                        Log.e("main", "저장실패");
 //                    }
 //                });
+        Value.END = String.valueOf(end);
+        Value.isCorrect = String.valueOf(isCorrect);
+        Value.delayToSpeak = String.valueOf(delayToSpeak);
+        Value.delayDuringSpeak = String.valueOf(delayDuringSpeak);
     }
 
     private void startListen() {
