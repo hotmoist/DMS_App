@@ -4,23 +4,45 @@ import java.io.File;
 import java.util.*;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
+import androidx.core.view.WindowCompat;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
+import android.view.animation.RotateAnimation;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.pytorch.IValue;
 import org.pytorch.Module;
 import org.pytorch.Tensor;
 import org.pytorch.torchvision.TensorImageUtils;
+import org.w3c.dom.Text;
 
 import java.nio.FloatBuffer;
+
+/**
+ * 운전자 인지 자원 측정을 위한 Activity
+ * layout : activity_prediction.xml
+ */
 
 public class PredictionActivity extends AbstractCameraXActivity<PredictionActivity.AnalysisResult> {
 
@@ -48,6 +70,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         }
     }
 
+    private TextView mResultText;
+
     private boolean mAnalyzeImageErrorState;
     private Module mModule;
     private String mModuleAssetName;
@@ -56,6 +80,12 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private long mMovingAvgSum = 0;
     private Queue<Long> mMovingAvgQueue = new LinkedList<>();
 
+    private LinearLayout layout;
+
+    private TextView mGPSName;
+    private TextView mSpeed;
+    private TextView mGyroName;
+    private TextView mGyroValue;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -67,9 +97,37 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         return findViewById(R.id.prediction_texture_view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        if(Build.VERSION.SDK_INT >= 30){
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        }
+
+        layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
+        int w = layout.getWidth();
+        int h = layout.getHeight();
+
+        layout.setRotation(270.0f);
+        layout.setTranslationX((w - h) / 2);
+        layout.setTranslationY((h - w) /2 );
+
+        ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
+        lp.height = w*2 ;
+        lp.width = h*2;
+        layout.requestLayout();
+
+        mResultText = findViewById(R.id.prediction_result_textview);
+        mSpeed = findViewById(R.id.speed_textview);
+        mGyroValue = findViewById(R.id.gyro_textview);
+
+        fileNameEdit = findViewById(R.id.CSV_name);
+        csvBtn = findViewById(R.id.start_csv);
+        csvBtn.setOnClickListener(view->{startCsvButton();});
+
     }
 
     protected String getModuleAssetName() {
@@ -140,8 +198,21 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         return null;
     }
 
+    /**
+     * 결과값 UI에 반영하기 위한 메소드
+     * UI Thread 에 의해 적용
+     * UI 요소는 cognitive_result_page.xml 참고
+     * @param result 추론 결과
+     */
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
+        mResultText.setText(result.topNClassNames[0]);
+        mSpeed.setText(String.format("%.2f km/h",Value.SPEED));
+        mGyroValue.setText(
+                String.format("X : %.2f ",Value.GYRO_X)+
+                String.format("Y : %.2f ",Value.GYRO_Y)+
+                String.format("Z : %.2f ",Value.GYRO_Z));
     }
 
     @Override
