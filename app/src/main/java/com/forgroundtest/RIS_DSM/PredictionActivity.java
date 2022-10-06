@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
@@ -80,6 +81,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
     private LinearLayout layout;
 
+    private TextView mGPSName;
+    private TextView mSpeed;
+    private TextView mGyroName;
+    private TextView mGyroValue;
+
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.activity_prediction;
@@ -90,6 +96,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         return findViewById(R.id.prediction_texture_view);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +120,12 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
+        mGPSName = findViewById(R.id.GPS_name);
+        mGPSName.setText("GPS is "+locationManager.isLocationEnabled());
+        mSpeed = findViewById(R.id.speed_textview);
+        mGyroName = findViewById(R.id.gyro_name);
+        mGyroName.setText(gyroSensor.getName());
+        mGyroValue = findViewById(R.id.gyro_textview);
 
     }
 

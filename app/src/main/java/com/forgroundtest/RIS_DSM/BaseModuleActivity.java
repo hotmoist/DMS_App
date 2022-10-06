@@ -99,9 +99,17 @@ public class BaseModuleActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(gyroListener, gyroSensor, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
     protected void onDestroy() {
         stopBackgroundThread();
         super.onDestroy();
+        sensorManager.unregisterListener(gyroListener);
+
     }
 
     protected void startBackgroundThread(){
