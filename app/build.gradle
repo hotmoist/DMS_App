@@ -40,6 +40,12 @@ dependencies {
     implementation "androidx.camera:camera-core:$camerax_version"
     implementation "androidx.camera:camera-camera2:$camerax_version"
 
+    /**
+     * csv 파일 의존성
+     */
+    implementation group: 'com.opencsv', name: 'opencsv', version: '4.4'
+
+
     implementation 'org.pytorch:pytorch_android:1.12.2'
     implementation 'org.pytorch:pytorch_android_torchvision:1.12.2'
 }

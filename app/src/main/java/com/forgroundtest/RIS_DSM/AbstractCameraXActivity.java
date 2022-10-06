@@ -6,6 +6,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.audiofx.PresetReverb;
 import android.graphics.Matrix;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Rational;
@@ -62,6 +63,10 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
     public void onRequestPermissionsResult(
             int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if ( Build.VERSION.SDK_INT >= 23 ){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET, Manifest.permission.RECORD_AUDIO}, PERMISSION);
+        }
+
         if (requestCode == REQUEST_CODE_CAMERA_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(

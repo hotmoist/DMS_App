@@ -13,7 +13,7 @@ public class STTListener implements RecognitionListener {
 
     private Context mContext = null;
 
-    public STTListener(Context c, TextView textView) {
+    public STTListener(Context c) {
         this.mContext = c;
     }
     @Override
