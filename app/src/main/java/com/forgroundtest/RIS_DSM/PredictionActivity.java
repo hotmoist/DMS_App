@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
 import androidx.core.view.WindowCompat;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -120,11 +121,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
-        mGPSName = findViewById(R.id.GPS_name);
-        mGPSName.setText("GPS is "+locationManager.isLocationEnabled());
         mSpeed = findViewById(R.id.speed_textview);
-        mGyroName = findViewById(R.id.gyro_name);
-        mGyroName.setText(gyroSensor.getName());
         mGyroValue = findViewById(R.id.gyro_textview);
 
     }
@@ -203,9 +200,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
      * UI 요소는 cognitive_result_page.xml 참고
      * @param result 추론 결과
      */
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
         mResultText.setText(result.topNClassNames[0]);
+        mSpeed.setText(String.format("%.2f km/h",Value.SPEED));
+        mGyroValue.setText(
+                String.format("X : %.2f ",Value.GYRO_X)+
+                String.format("Y : %.2f ",Value.GYRO_Y)+
+                String.format("Z : %.2f ",Value.GYRO_Z));
     }
 
     @Override

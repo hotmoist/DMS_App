@@ -40,13 +40,6 @@
             android:gravity="center"
             />
 
-        <TextView
-            android:id="@+id/GPS_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="[Current Speed]"
-            android:textColor="@color/white"
-            android:gravity="center"/>
 
         <TextView
             android:id="@+id/speed_textview"
@@ -57,14 +50,6 @@
             android:gravity="center"
             />
 
-        <TextView
-            android:id="@+id/gyro_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="[Current Gyro]"
-            android:textColor="@color/white"
-            android:gravity="center"
-            />
 
         <TextView
             android:id="@+id/gyro_textview"
