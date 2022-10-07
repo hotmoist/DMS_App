@@ -66,8 +66,8 @@
 
         <TextureView
             android:id="@+id/prediction_texture_view"
-            android:layout_width="135dp"
-            android:layout_height="296dp"
+            android:layout_width="270px"
+            android:layout_height="584px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
