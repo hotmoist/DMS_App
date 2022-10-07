@@ -115,12 +115,12 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         Toast.makeText(this, "weight: " + layout.getWidth() +"| height: " + layout.getHeight(), Toast.LENGTH_SHORT).show();
 
         layout.setRotation(270.0f);
-        layout.setTranslationX((w - h) / 2 + 100);
+        layout.setTranslationX((w - h) / 2 - 150);
         layout.setTranslationY((h - w) /2 );
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
-        lp.height = w*2;
-        lp.width = 600;
+        lp.height = 650;
+        lp.width = 584;
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
