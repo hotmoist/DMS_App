@@ -8,7 +8,10 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.WindowCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -28,6 +31,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,6 +92,14 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mGyroName;
     private TextView mGyroValue;
 
+    private com.google.android.material.button.MaterialButton appStartingBtn;
+    private ImageButton backToPrediction;
+    private ConstraintLayout englishAppView;
+    private BeforeAppFragment beforeAppFragment;
+    private EnglishAppFragment englishAppFragment;
+    private FragmentManager fm;
+    private FragmentTransaction fTran;
+
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.activity_prediction;
@@ -131,6 +143,35 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         csvBtn = findViewById(R.id.start_csv);
         csvBtn.setOnClickListener(view->{startCsvButton();});
 
+        // 빈 frag와 영어학습 어플리케이션과의 화면 전환
+        englishAppView = findViewById(R.id.englishAppView);
+        englishAppView.setRotation(270.0f);
+        appStartingBtn = findViewById(R.id.appStartingBtn);
+        backToPrediction = findViewById(R.id.backToPrediction);
+        fm = getSupportFragmentManager();
+        fTran = fm.beginTransaction();
+        beforeAppFragment = new BeforeAppFragment();
+        englishAppFragment = new EnglishAppFragment();
+        fTran.replace(R.id.englishApp, beforeAppFragment);
+        fTran.commit();
+
+        appStartingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fTran = fm.beginTransaction();
+                fTran.replace(R.id.englishApp, englishAppFragment);
+                fTran.commit();
+            }
+        });
+
+        backToPrediction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fTran = fm.beginTransaction();
+                fTran.replace(R.id.englishApp, beforeAppFragment);
+                fTran.commit();
+            }
+        });
     }
 
     protected String getModuleAssetName() {

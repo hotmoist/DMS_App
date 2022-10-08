@@ -277,7 +277,7 @@ public class BaseModuleActivity extends AppCompatActivity {
     public static String getCurrentDateTime() {
         Date today = new Date();
         Locale currentLocale = new Locale("KOREAN", "KOREA");
-        String pattern = "yyyyMMddHHmmss"; //hhmmss로 시간,분,초만 뽑기도 가능
+        String pattern = "yyyy-MM-dd HH:mm:ss"; //hhmmss로 시간,분,초만 뽑기도 가능
         SimpleDateFormat formatter = new SimpleDateFormat(pattern,
                 currentLocale);
         return formatter.format(today);
