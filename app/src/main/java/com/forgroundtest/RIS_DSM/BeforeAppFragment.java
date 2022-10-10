@@ -15,7 +15,7 @@ import android.view.ViewGroup;
  */
 public class BeforeAppFragment extends Fragment {
 
-    com.google.android.material.button.MaterialButton runBtn;
+    com.google.android.material.button.MaterialButton appStartBtn;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -62,6 +62,8 @@ public class BeforeAppFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_before_app, container, false);
+
+        getActivity().findViewById(R.id.appStartingBtn).setVisibility(View.VISIBLE);
 
         return rootView;
     }

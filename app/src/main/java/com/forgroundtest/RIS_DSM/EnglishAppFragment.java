@@ -49,6 +49,7 @@ public class EnglishAppFragment extends Fragment {
     private long speechLen2 = 0;
     private boolean isBackTest = false;
 
+    private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
     private SpeechRecognizer speechRecognizer = null;
 
@@ -115,6 +116,9 @@ public class EnglishAppFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_english_app, container, false);
+
+        appStartBtn = getActivity().findViewById(R.id.appStartingBtn);
+        appStartBtn.setVisibility(View.INVISIBLE);
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         speechSct = rootView.findViewById(R.id.speechScript);
@@ -481,7 +485,7 @@ public class EnglishAppFragment extends Fragment {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
 
         speechRecognizer.startListening(intent);
