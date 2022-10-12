@@ -53,6 +53,8 @@ public class InitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_init);
         findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, PredictionActivity.class) ));
 
+        // index init
+        EnglishAppFragment.idx = -1;
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         backBtn = findViewById(R.id.backbutton);
         backBtn.setOnClickListener(new View.OnClickListener() {

@@ -185,7 +185,7 @@ public class BaseModuleActivity extends AppCompatActivity {
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
         long passiveInterval = LocationRequest.PASSIVE_INTERVAL;
-        Toast.makeText(this,passiveInterval+"",Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this,passiveInterval+"",Toast.LENGTH_SHORT).show();
     }
     public void resistSensor(){
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);

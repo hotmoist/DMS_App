@@ -124,7 +124,6 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         int w = layout.getWidth();
         int h = layout.getHeight();
 
-        Toast.makeText(this, "weight: " + layout.getWidth() +"| height: " + layout.getHeight(), Toast.LENGTH_SHORT).show();
 
         layout.setRotation(270.0f);
         layout.setTranslationX((w - h) / 2 - 150);
@@ -152,7 +151,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         fTran = fm.beginTransaction();
         beforeAppFragment = new BeforeAppFragment();
         englishAppFragment = new EnglishAppFragment();
-        fTran.replace(R.id.englishApp, beforeAppFragment);
+        fTran.add(R.id.englishApp, beforeAppFragment);
         fTran.commit();
 
         appStartingBtn.setOnClickListener(new View.OnClickListener() {
