@@ -41,7 +41,7 @@ public class EnglishAppFragment extends Fragment {
 
     String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best"};
     String[] kor = {"준비 다 됐어?", "다음에 더 잘할거라고 확신해.", "모든 일이 잘되시길 빌어요."};
-    private int idx = 0;
+    public static int idx = -1;
     private int index = 0;
     private long delay1 = 0;
     private long delay2 = 0;
@@ -134,8 +134,8 @@ public class EnglishAppFragment extends Fragment {
         postSpeech.setText("");
         something = rootView.findViewById(R.id.something);
         blindBtn = rootView.findViewById(R.id.blind);
-        leftBtn = rootView.findViewById(R.id.leftbutton);
-        rightBtn = rootView.findViewById(R.id.rightbutton);
+//        leftBtn = rootView.findViewById(R.id.leftbutton);
+//        rightBtn = rootView.findViewById(R.id.rightbutton);
         replayBtn = rootView.findViewById(R.id.replaybtn);
         correct = rootView.findViewById(R.id.correct);
         backBtn = rootView.findViewById(R.id.backbutton1);
@@ -152,27 +152,14 @@ public class EnglishAppFragment extends Fragment {
             }
         });
 
-        leftBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                idx--;
-                progress.setText(idx-1 + "/3");
-                speechSct.setText(eng[idx]);
-                firstKor.setText(kor[idx]);
-                postSpeech.setText("");
-                correct.setBackgroundResource(R.drawable.round_box_g);
-                speaking.setBackgroundResource(R.drawable.circleempty);
-                speaking.setTextColor(Color.BLACK);
-                speak(speechSct.getText().toString());
-            }
-        });
 
-        rightBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                turnPage();
-            }
-        });
+
+//        rightBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                turnPage();
+//            }
+//        });
 
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -465,8 +452,8 @@ public class EnglishAppFragment extends Fragment {
     @SuppressLint("SetTextI18n")
     private void turnPage() {
         isBackTest = false;
-        idx++;
-        if (idx == eng.length) {
+        EnglishAppFragment.idx++;
+        if (EnglishAppFragment.idx == eng.length) {
             // 끝처리
             return;
         }
@@ -517,29 +504,29 @@ public class EnglishAppFragment extends Fragment {
         });
     }
 
-    private void saveIdx() {
-        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        if (idx == eng.length-1) {
-            editor.putInt("idx", 0);
-            editor.commit();
-        } else {
-            editor.putInt("idx", idx);
-            editor.commit();
-        }
-    }
+//    private void saveIdx() {
+//        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = pref.edit();
+//        if (idx == eng.length-1) {
+//            editor.putInt("idx", 0);
+//            editor.commit();
+//        } else {
+//            editor.putInt("idx", idx);
+//            editor.commit();
+//        }
+//    }
 
-    private void loadIdx() {
-        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
-        int current = pref.getInt("idx", 0);
-        Log.e("main", String.valueOf(current));
-        currentScreen(current);
-    }
-
-    private void currentScreen(int current) {
-        idx = current-1;
-        turnPage();
-    }
+//    private void loadIdx() {
+//        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
+//        int current = pref.getInt("idx", 0);
+//        Log.e("main", String.valueOf(current));
+//        currentScreen(current);
+//    }
+//
+//    private void currentScreen(int current) {
+//        idx = current-1;
+//        turnPage();
+//    }
 
     @Override
     public void onStart() {
@@ -550,13 +537,15 @@ public class EnglishAppFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        saveIdx();
+//        saveIdx();
+        EnglishAppFragment.idx--;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadIdx();
+//        loadIdx();
+        turnPage();
     }
 
     @Override

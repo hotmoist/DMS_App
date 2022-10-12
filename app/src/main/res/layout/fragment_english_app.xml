@@ -159,24 +159,24 @@
                 android:layout_gravity="center"
                 >
 
-                <ImageButton
-                    android:id="@+id/leftbutton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ic_baseline_arrow_left_24"
-                    tools:ignore="SpeakableTextPresentCheck" />
+<!--                <ImageButton-->
+<!--                    android:id="@+id/leftbutton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@drawable/ic_baseline_arrow_left_24"-->
+<!--                    tools:ignore="SpeakableTextPresentCheck" />-->
 
                 <Space
                     android:layout_width="0px"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
-                <ImageButton
-                    android:id="@+id/rightbutton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ic_baseline_arrow_right_24"
-                    tools:ignore="SpeakableTextPresentCheck" />
+<!--                <ImageButton-->
+<!--                    android:id="@+id/rightbutton"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@drawable/ic_baseline_arrow_right_24"-->
+<!--                    tools:ignore="SpeakableTextPresentCheck" />-->
             </LinearLayout>
 
             <LinearLayout
