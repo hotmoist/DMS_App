@@ -1,5 +1,7 @@
 package com.forgroundtest.RIS_DSM;
 
+import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,6 +31,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.opencsv.CSVWriter;
+
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -388,7 +394,44 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });*/
+
+        FileWriter file=null;
+        CSVWriter writer;
+        try {
+            file = new FileWriter("nback_test_number"+FILE_NAME,true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+        /**
+         * 저장 컬럼 제목 넣기
+         */
+        writer.writeNext(new String[]{
+                "time",
+                "index",
+                "correct",
+                "start time",
+                "speaking time",});
+        /**
+         * 저장 컬럼별 데이터
+         */
+        writer.writeNext(new String[]{
+                BaseModuleActivity.getCurrentDateTime().toString(),
+                Value.END,
+                Value.isCorrect+"",
+                Value.delayToSpeak+"",
+                Value.delayDuringSpeak+"",});
     }
+
 
     private void writeNewCase(int idx, int wordCnt, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
         /*Case ca = new Case(wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
@@ -408,6 +451,41 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });*/
+        FileWriter file=null;
+        CSVWriter writer;
+        try {
+            file = new FileWriter("nback_test_string"+FILE_NAME,true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        writer = new CSVWriter(file);
+        /**
+         *                      getCurrentDateTime().toString()+","
+         *                      +Value.SPEED+","
+         *                      +Value.ACC+","
+         *                      +Value.GYRO_X+","
+         *                      +Value.GYRO_Y+","
+         *                      +Value.GYRO_Z+","
+         *                      +Value.LIGHT
+         */
+        /**
+         * 저장 컬럼 제목 넣기
+         */
+        writer.writeNext(new String[]{
+                "time",
+                "index",
+                "correct",
+                "start time",
+                "speaking time",});
+        /**
+         * 저장 컬럼별 데이터
+         */
+        writer.writeNext(new String[]{
+                BaseModuleActivity.getCurrentDateTime().toString(),
+                Value.END,
+                Value.isCorrect+"",
+                Value.delayToSpeak+"",
+                Value.delayDuringSpeak+"",});
     }
 
     // Initialize the tts service.

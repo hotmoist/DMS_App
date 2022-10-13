@@ -2,6 +2,8 @@ package com.forgroundtest.RIS_DSM;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 
+import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -205,7 +207,8 @@ public class BaseModuleActivity extends AppCompatActivity {
 
             try {
                 String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/" + fileNameEdit.getText().toString();
-                startDataToCsv(path);
+                FILE_NAME = path;
+                startDataToCsv(FILE_NAME);
 
                 timer = new Timer();
                 timerTask = new TimerTask() {
@@ -220,6 +223,10 @@ public class BaseModuleActivity extends AppCompatActivity {
                                 +Value.GYRO_Z+"",
                                 Value.RESULT}
                         );
+                        /**
+                         * firebase 실시간 모니터링 코드 추가
+                         * true 판단시에 nback test 실행
+                         */
                     }
                 };
                 Toast.makeText(this,"저장을 시작합니다.",Toast.LENGTH_SHORT).show();
