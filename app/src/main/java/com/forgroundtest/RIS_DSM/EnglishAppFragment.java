@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,14 +28,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.forgroundtest.RIS_DSM.Model.Case;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -45,20 +53,28 @@ import java.util.Locale;
  */
 public class EnglishAppFragment extends Fragment {
 
+    private SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private long mNow;
+    private Date mDate;
+
     String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best"};
     String[] kor = {"준비 다 됐어?", "다음에 더 잘할거라고 확신해.", "모든 일이 잘되시길 빌어요."};
-    public static int idx = -1;
+    public static int engIdx = 0;
+    public static int nBackIdx = 0;
+    public static boolean isEng = false;
+    public static boolean isnBack = false;
+    public static Button exampi;
     private int index = 0;
     private long delay1 = 0;
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
-    private boolean isBackTest = false;
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
     private SpeechRecognizer speechRecognizer = null;
 
+    private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     private NBack nBack = new NBack();
     private TextView speaking;
@@ -117,6 +133,7 @@ public class EnglishAppFragment extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -133,9 +150,9 @@ public class EnglishAppFragment extends Fragment {
         follow = rootView.findViewById(R.id.follow);
         postSpeech = rootView.findViewById(R.id.postSpeech);
         speaking = rootView.findViewById(R.id.speaking);
-//        speechSct.setText(eng[idx]);
-//        firstKor.setText(kor[idx]);
-//        progress.setText(idx+1 + "/3");
+        speechSct.setText(eng[engIdx]);
+        firstKor.setText(kor[engIdx]);
+        progress.setText(((engIdx+nBackIdx)+1) + "/13");
         follow.setText("");
         postSpeech.setText("");
         something = rootView.findViewById(R.id.something);
@@ -158,6 +175,13 @@ public class EnglishAppFragment extends Fragment {
             }
         });
 
+        exampi = rootView.findViewById(R.id.exampi);
+        exampi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                turnPage();
+            }
+        });
 
 
 //        rightBtn.setOnClickListener(new View.OnClickListener() {
@@ -262,7 +286,7 @@ public class EnglishAppFragment extends Fragment {
 
 
                 if (str.get(0) != null) {
-                    if (!isBackTest) {
+                    if (!isnBack) {
                         postSpeech.setText(str.get(0));
                         answerCheck();
                     } else {
@@ -325,7 +349,7 @@ public class EnglishAppFragment extends Fragment {
 
         writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
         Log.e("nBack", "good");
-        turnPage();
+//        turnPage();
     }
 
     // Compare answer to Input
@@ -356,23 +380,15 @@ public class EnglishAppFragment extends Fragment {
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 
         // write the firebase realtimeDB about 4 diffrent case
-        writeNewCase(idx, cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
+        writeNewCase(engIdx, cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (idx % 3 == 1) {
-                    Log.e("main", "test");
-                    isBackTest = true;
-                    index = (int)((Math.random()*10000)%10);
-                    Log.e("index", String.valueOf(index));
-                    speak(NBack.nBack[index]);
-                } else {
-                    turnPage();
-                }
-            }
-        }, 1500);
+//        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                turnPage();
+//            }
+//        }, 1500);
     }
 
     private void writeNewBackTest(int end, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
@@ -416,8 +432,8 @@ public class EnglishAppFragment extends Fragment {
          * 저장 컬럼 제목 넣기
          */
         writer.writeNext(new String[]{
-                "time",
-                "index",
+                "currentTime",
+                "count of wrong word",
                 "correct",
                 "start time",
                 "speaking time",});
@@ -434,12 +450,9 @@ public class EnglishAppFragment extends Fragment {
 
 
     private void writeNewCase(int idx, int wordCnt, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
-        /*Case ca = new Case(wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        assert user != null;
-        String uid = user.getUid();
+        Case ca = new Case(getTime(), wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
 
-        mDatabase.child("user").child(uid).child("case").child(String.valueOf(idx)).setValue(ca).addOnSuccessListener(new OnSuccessListener<Void>() {
+        mDatabase.child("study").child("test").child("englishTest").child(String.valueOf(idx)).setValue(ca).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.e("main", "저장성공");
@@ -450,7 +463,7 @@ public class EnglishAppFragment extends Fragment {
                     public void onFailure(@NonNull Exception e) {
                         Log.e("main", "저장실패");
                     }
-                });*/
+                });
         FileWriter file=null;
         CSVWriter writer;
         try {
@@ -472,8 +485,8 @@ public class EnglishAppFragment extends Fragment {
          * 저장 컬럼 제목 넣기
          */
         writer.writeNext(new String[]{
-                "time",
-                "index",
+                "currentTime",
+                "count of wrong word",
                 "correct",
                 "start time",
                 "speaking time",});
@@ -482,10 +495,10 @@ public class EnglishAppFragment extends Fragment {
          */
         writer.writeNext(new String[]{
                 BaseModuleActivity.getCurrentDateTime().toString(),
-                Value.END,
-                Value.isCorrect+"",
-                Value.delayToSpeak+"",
-                Value.delayDuringSpeak+"",});
+                wordCnt+"",
+                isCorrect+"",
+                delayToSpeak+"",
+                delayDuringSpeak+"",});
     }
 
     // Initialize the tts service.
@@ -499,7 +512,7 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onDone(String s) {
 
-                if (!isBackTest) {
+                if (!isnBack) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -528,22 +541,27 @@ public class EnglishAppFragment extends Fragment {
     }
 
     @SuppressLint("SetTextI18n")
-    private void turnPage() {
-        isBackTest = false;
-        EnglishAppFragment.idx++;
-        if (EnglishAppFragment.idx == eng.length) {
+    public void turnPage() {
+        if ((engIdx+nBackIdx) == 13) {
             // 끝처리
             return;
         }
 
-        progress.setText(idx+1 + "/3");
-        speechSct.setText(eng[idx]);
-        firstKor.setText(kor[idx]);
+        progress.setText(((engIdx+nBackIdx)+1) + "/13");
         postSpeech.setText("");
         correct.setBackgroundResource(R.drawable.round_box_g);
         speaking.setBackgroundResource(R.drawable.circleempty);
         speaking.setTextColor(Color.BLACK);
-        speak(speechSct.getText().toString());
+        if (isEng) {
+            speechSct.setText(eng[engIdx]);
+            firstKor.setText(kor[engIdx++]);
+            speak(speechSct.getText().toString());
+            isEng = false;
+        } else {
+            speechSct.setText(NBack.nBack[nBackIdx]);
+            speak(NBack.nBack[nBackIdx++]);
+            isnBack = false;
+        }
     }
 
     private void startListen() {
@@ -570,7 +588,7 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("TTS", "This Language is not supported");
                     } else {
                         ttsUtterInitialize();
-                        if (isBackTest) {
+                        if (isnBack) {
                             textToSpeech.setSpeechRate(0.40f);
                         }
                         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
@@ -615,15 +633,15 @@ public class EnglishAppFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-//        saveIdx();
-        EnglishAppFragment.idx--;
+////        saveIdx();
+//        EnglishAppFragment.engIdx--;
     }
 
     @Override
     public void onResume() {
         super.onResume();
 //        loadIdx();
-        turnPage();
+//        turnPage();
     }
 
     @Override
@@ -638,5 +656,11 @@ public class EnglishAppFragment extends Fragment {
         speechRecognizer.destroy();
 
         super.onDestroy();
+    }
+
+    private String getTime(){
+        mNow = System.currentTimeMillis();
+        mDate = new Date(mNow);
+        return mFormat.format(mDate);
     }
 }

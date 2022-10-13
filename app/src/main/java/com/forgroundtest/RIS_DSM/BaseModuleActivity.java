@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
@@ -36,6 +37,11 @@ import androidx.core.app.ActivityCompat;
 
 import com.forgroundtest.RIS_DSM.Listener.GyroListener;
 import com.forgroundtest.RIS_DSM.Listener.STTListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.opencsv.CSVWriter;
 
 import java.io.FileWriter;
@@ -83,6 +89,11 @@ public class BaseModuleActivity extends AppCompatActivity {
     TimerTask timerTask;
     FileWriter file;
     CSVWriter writer;
+
+    /**
+     * firebase 변수
+     */
+    private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -227,6 +238,39 @@ public class BaseModuleActivity extends AppCompatActivity {
                          * firebase 실시간 모니터링 코드 추가
                          * true 판단시에 nback test 실행
                          */
+                        mDatabase.child("study").child("isEnglishTest").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.e("firebase", "Error getting data", task.getException());
+                                }
+                                else {
+                                    String value = String.valueOf(task.getResult().getValue());
+                                    if (value.equals("true")) {
+                                        mDatabase.child("study").child("isEnglishTest").setValue(false);
+                                        EnglishAppFragment.isEng = true;
+                                        EnglishAppFragment.exampi.callOnClick();
+                                    }
+                                }
+                            }
+                        });
+
+                        mDatabase.child("study").child("isNBackTest").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.e("firebase", "Error getting data", task.getException());
+                                }
+                                else {
+                                    String value = String.valueOf(task.getResult().getValue());
+                                    if (value.equals("true")) {
+                                        mDatabase.child("study").child("isNBackTest").setValue(false);
+                                        EnglishAppFragment.isnBack = true;
+                                        EnglishAppFragment.exampi.callOnClick();
+                                    }
+                                }
+                            }
+                        });
                     }
                 };
                 Toast.makeText(this,"저장을 시작합니다.",Toast.LENGTH_SHORT).show();

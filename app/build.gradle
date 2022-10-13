@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -47,4 +48,9 @@ dependencies {
 
     implementation 'org.pytorch:pytorch_android:1.12.2'
     implementation 'org.pytorch:pytorch_android_torchvision:1.12.2'
+
+    // firebase
+    implementation platform('com.google.firebase:firebase-bom:30.3.2')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-database:19.2.1'
 }
