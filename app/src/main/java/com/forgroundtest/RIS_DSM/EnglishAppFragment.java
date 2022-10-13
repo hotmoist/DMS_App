@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.forgroundtest.RIS_DSM.Model.Case;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -56,6 +57,8 @@ public class EnglishAppFragment extends Fragment {
     private SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private long mNow;
     private Date mDate;
+
+    private String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
 
     String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best"};
     String[] kor = {"준비 다 됐어?", "다음에 더 잘할거라고 확신해.", "모든 일이 잘되시길 빌어요."};
@@ -317,11 +320,10 @@ public class EnglishAppFragment extends Fragment {
     private void nBackAnswerCheck(String voice) {
         // n백 정확도 측정 알고리즘 작성
         // 결과 firebase에 저장.
-        voice = voice.replace("?", "").replace(".", "").toLowerCase();
+        voice = voice.replaceAll(match, "");
+        voice = voice.replace(" ", "").toLowerCase();
         String[] nBtest = NBack.nBack[index].split(" ");
-        while (voice.contains(" ")) {
-            voice.replace(" ", "");
-        }
+        Log.e("stt", voice);
         String[] string = voice.split("");
 
         int cnt = 0;
@@ -333,6 +335,7 @@ public class EnglishAppFragment extends Fragment {
                 if (!string[wrong].equals(nBtest[wrong])) {
                     cnt = wrong+1;
                     isCorrect = false;
+                    break;
                 }
             }
             if (isCorrect) {
@@ -343,6 +346,7 @@ public class EnglishAppFragment extends Fragment {
                 if (!string[wrong].equals(nBtest[wrong])) {
                     cnt = wrong+1;
                     isCorrect = false;
+                    break;
                 }
             }
         }
@@ -354,7 +358,10 @@ public class EnglishAppFragment extends Fragment {
 
     // Compare answer to Input
     private void answerCheck() {
-        String[] first = speechSct.getText().toString().replace("?", "").replace(".", "").toLowerCase().split(" ");
+        String voice = speechSct.getText().toString();
+        voice = voice.replaceAll(match, "");
+        voice = voice.replace(" ", "");
+        String[] first = voice.toLowerCase().split(" ");
         String[] post = postSpeech.getText().toString().toLowerCase().split(" ");
         int cnt = 0;
         boolean isCorrect = false;
@@ -393,12 +400,10 @@ public class EnglishAppFragment extends Fragment {
 
     private void writeNewBackTest(int end, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
         // firebase에 저장.
-        /*Case testCa = new Case(end, isCorrect, delayToSpeak, delayDuringSpeak);
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        assert user != null;
-        String uid = user.getUid();
+        isnBack = false;
+        Case testCa = new Case(getTime(), end, isCorrect, delayToSpeak, delayDuringSpeak);
 
-        mDatabase.child("user").child(uid).child("nBackTest").child(String.valueOf(index)).setValue(testCa).addOnSuccessListener(new OnSuccessListener<Void>() {
+        mDatabase.child("study").child("test").child("NBackTest").child(String.valueOf(nBackIdx)).setValue(testCa).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.e("main", "저장성공");
@@ -409,7 +414,7 @@ public class EnglishAppFragment extends Fragment {
                     public void onFailure(@NonNull Exception e) {
                         Log.e("main", "저장실패");
                     }
-                });*/
+                });
 
         FileWriter file=null;
         CSVWriter writer;
@@ -431,9 +436,10 @@ public class EnglishAppFragment extends Fragment {
         /**
          * 저장 컬럼 제목 넣기
          */
+        // 난중에 수정할 것. (incorrect한 index list화)
         writer.writeNext(new String[]{
                 "currentTime",
-                "count of wrong word",
+                "starting Point of incorrect",
                 "correct",
                 "start time",
                 "speaking time",});
@@ -442,14 +448,15 @@ public class EnglishAppFragment extends Fragment {
          */
         writer.writeNext(new String[]{
                 BaseModuleActivity.getCurrentDateTime().toString(),
-                Value.END,
-                Value.isCorrect+"",
-                Value.delayToSpeak+"",
-                Value.delayDuringSpeak+"",});
+                end+"",
+                isCorrect+"",
+                delayToSpeak+"",
+                delayDuringSpeak+"",});
     }
 
 
     private void writeNewCase(int idx, int wordCnt, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
+        isEng = false;
         Case ca = new Case(getTime(), wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
 
         mDatabase.child("study").child("test").child("englishTest").child(String.valueOf(idx)).setValue(ca).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -486,7 +493,7 @@ public class EnglishAppFragment extends Fragment {
          */
         writer.writeNext(new String[]{
                 "currentTime",
-                "count of wrong word",
+                "count of incorrect words",
                 "correct",
                 "start time",
                 "speaking time",});
@@ -511,17 +518,14 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onDone(String s) {
-
-                if (!isnBack) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            follow.setText("이제 따라해보세요.");
-                            speaking.setBackgroundResource(R.drawable.circleshape);
-                            speaking.setTextColor(Color.WHITE);
-                        }
-                    });
-                }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        follow.setText("이제 따라해보세요.");
+                        speaking.setBackgroundResource(R.drawable.circleshape);
+                        speaking.setTextColor(Color.WHITE);
+                    }
+                });
 
                 // stt must be run in main thread.
                 something.post(new Runnable() {
@@ -553,14 +557,21 @@ public class EnglishAppFragment extends Fragment {
         speaking.setBackgroundResource(R.drawable.circleempty);
         speaking.setTextColor(Color.BLACK);
         if (isEng) {
+            if (engIdx == eng.length) {
+                Toast.makeText(getContext(), "다음 영어 문장이 없습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             speechSct.setText(eng[engIdx]);
             firstKor.setText(kor[engIdx++]);
             speak(speechSct.getText().toString());
-            isEng = false;
         } else {
+            if (nBackIdx == NBack.nBack.length) {
+                Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             speechSct.setText(NBack.nBack[nBackIdx]);
+            firstKor.setText("");
             speak(NBack.nBack[nBackIdx++]);
-            isnBack = false;
         }
     }
 
@@ -579,6 +590,7 @@ public class EnglishAppFragment extends Fragment {
             textToSpeech.stop();
             textToSpeech.shutdown();
         }
+
         textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -588,8 +600,8 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("TTS", "This Language is not supported");
                     } else {
                         ttsUtterInitialize();
-                        if (isnBack) {
-                            textToSpeech.setSpeechRate(0.40f);
+                        if (!isEng) {
+                            textToSpeech.setSpeechRate(0.70f);
                         }
                         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
                     }

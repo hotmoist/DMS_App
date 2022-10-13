@@ -73,6 +73,9 @@ public class InitActivity extends AppCompatActivity {
         mDatabase.child("study").child("isEnglishTest").setValue(false);
         mDatabase.child("study").child("isNBackTest").setValue(false);
 
+        EnglishAppFragment.engIdx = 0;
+        EnglishAppFragment.nBackIdx = 0;
+
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
