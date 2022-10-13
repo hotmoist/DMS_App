@@ -388,6 +388,12 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });*/
+
+        // nBackTest 이후 저장되는 내용 ->
+        // 1. 숫자를 하나 하나 체크할 때 가장 먼저 불일치가 발생된 인덱스.
+        // 2. 전체 문장이 맞았는지 (1.의 불일치가 발생했다면 자동적으로 이 것은 false
+        // 3. user의 발화 대기 시간. (말하기까지 걸리는 시간.)
+        // 4. user의 발화 시간 (말을 시작하고 끝맺은데 걸리는 시간.)
     }
 
     private void writeNewCase(int idx, int wordCnt, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
@@ -408,6 +414,12 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });*/
+
+        // nBackTestX (영어문장) 이후 저장되는 내용 ->
+        // 1. 전체 문장 중 불일치한 단어의 개수.
+        // 2. 전체 문장이 맞았는지 (1.의 불일치가 발생했다면 자동적으로 이 것은 false
+        // 3. user의 발화 대기 시간. (말하기까지 걸리는 시간.)
+        // 4. user의 발화 시간 (말을 시작하고 끝맺은데 걸리는 시간.)
     }
 
     // Initialize the tts service.
