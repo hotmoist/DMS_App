@@ -21,6 +21,9 @@ import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -47,6 +50,8 @@ public class InitActivity extends AppCompatActivity {
     private long speechLen2 = 0;
     private int index = 0;
 
+    private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +59,7 @@ public class InitActivity extends AppCompatActivity {
         findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, PredictionActivity.class) ));
 
         // index init
-        EnglishAppFragment.idx = -1;
+        EnglishAppFragment.engIdx = 0;
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         backBtn = findViewById(R.id.backbutton);
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -63,6 +68,13 @@ public class InitActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        // init 되자마자 flag false로 초기화
+        mDatabase.child("study").child("isEnglishTest").setValue(false);
+        mDatabase.child("study").child("isNBackTest").setValue(false);
+
+        EnglishAppFragment.engIdx = 0;
+        EnglishAppFragment.nBackIdx = 0;
 
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
