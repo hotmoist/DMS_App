@@ -218,8 +218,8 @@ public class BaseModuleActivity extends AppCompatActivity {
 
             try {
                 String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/" + fileNameEdit.getText().toString();
-                FILE_NAME = path;
-                startDataToCsv(FILE_NAME);
+                FILE_NAME = fileNameEdit.getText().toString();
+                startDataToCsv(path);
 
                 timer = new Timer();
                 timerTask = new TimerTask() {

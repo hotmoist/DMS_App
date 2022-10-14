@@ -1,5 +1,6 @@
 package com.forgroundtest.RIS_DSM;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
 
 import android.Manifest;
@@ -18,6 +19,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -57,7 +59,11 @@ public class EnglishAppFragment extends Fragment {
     private SimpleDateFormat mFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private long mNow;
     private Date mDate;
-
+    /**
+     * 파일 생성 변수
+     */
+    FileWriter file= null;
+    CSVWriter writer;
     private String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
 
     String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best"};
@@ -415,13 +421,14 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });
+        Log.d("FILE_NAME",FILE_NAME);
 
-        FileWriter file=null;
-        CSVWriter writer;
         try {
-            file = new FileWriter("nback_test_number"+FILE_NAME,true);
+            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+            file = new FileWriter(path,true);
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
         }
         writer = new CSVWriter(file);
 /**
@@ -471,8 +478,6 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });
-        FileWriter file=null;
-        CSVWriter writer;
         try {
             file = new FileWriter("nback_test_string"+FILE_NAME,true);
         } catch (IOException e) {
