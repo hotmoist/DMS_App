@@ -321,7 +321,6 @@ public class EnglishAppFragment extends Fragment {
         // n백 정확도 측정 알고리즘 작성
         // 결과 firebase에 저장.
         voice = voice.replaceAll(match, "");
-        voice = voice.replace(" ", "").toLowerCase();
         String[] nBtest = NBack.nBack[index].split(" ");
         Log.e("stt", voice);
         String[] string = voice.split("");
@@ -358,11 +357,12 @@ public class EnglishAppFragment extends Fragment {
 
     // Compare answer to Input
     private void answerCheck() {
-        String voice = speechSct.getText().toString();
+        String voice = speechSct.getText().toString().toLowerCase();
+        String userInput = postSpeech.getText().toString().toLowerCase();
         voice = voice.replaceAll(match, "");
-        voice = voice.replace(" ", "");
-        String[] first = voice.toLowerCase().split(" ");
-        String[] post = postSpeech.getText().toString().toLowerCase().split(" ");
+        userInput = userInput.replaceAll(match, "");
+        String[] first = voice.split("");
+        String[] post = userInput.split("");
         int cnt = 0;
         boolean isCorrect = false;
 
@@ -437,21 +437,21 @@ public class EnglishAppFragment extends Fragment {
          * 저장 컬럼 제목 넣기
          */
         // 난중에 수정할 것. (incorrect한 index list화)
-        writer.writeNext(new String[]{
-                "currentTime",
-                "starting Point of incorrect",
-                "correct",
-                "start time",
-                "speaking time",});
-        /**
-         * 저장 컬럼별 데이터
-         */
-        writer.writeNext(new String[]{
-                BaseModuleActivity.getCurrentDateTime().toString(),
-                end+"",
-                isCorrect+"",
-                delayToSpeak+"",
-                delayDuringSpeak+"",});
+//        writer.writeNext(new String[]{
+//                "currentTime",
+//                "starting Point of incorrect",
+//                "correct",
+//                "start time",
+//                "speaking time",});
+//        /**
+//         * 저장 컬럼별 데이터
+//         */
+//        writer.writeNext(new String[]{
+//                BaseModuleActivity.getCurrentDateTime().toString(),
+//                end+"",
+//                isCorrect+"",
+//                delayToSpeak+"",
+//                delayDuringSpeak+"",});
     }
 
 
@@ -491,21 +491,21 @@ public class EnglishAppFragment extends Fragment {
         /**
          * 저장 컬럼 제목 넣기
          */
-        writer.writeNext(new String[]{
-                "currentTime",
-                "count of incorrect words",
-                "correct",
-                "start time",
-                "speaking time",});
-        /**
-         * 저장 컬럼별 데이터
-         */
-        writer.writeNext(new String[]{
-                BaseModuleActivity.getCurrentDateTime().toString(),
-                wordCnt+"",
-                isCorrect+"",
-                delayToSpeak+"",
-                delayDuringSpeak+"",});
+//        writer.writeNext(new String[]{
+//                "currentTime",
+//                "count of incorrect words",
+//                "correct",
+//                "start time",
+//                "speaking time",});
+//        /**
+//         * 저장 컬럼별 데이터
+//         */
+//        writer.writeNext(new String[]{
+//                BaseModuleActivity.getCurrentDateTime().toString(),
+//                wordCnt+"",
+//                isCorrect+"",
+//                delayToSpeak+"",
+//                delayDuringSpeak+"",});
     }
 
     // Initialize the tts service.
@@ -559,6 +559,7 @@ public class EnglishAppFragment extends Fragment {
         if (isEng) {
             if (engIdx == eng.length) {
                 Toast.makeText(getContext(), "다음 영어 문장이 없습니다.", Toast.LENGTH_SHORT).show();
+                isEng = false;
                 return;
             }
             speechSct.setText(eng[engIdx]);
@@ -567,6 +568,7 @@ public class EnglishAppFragment extends Fragment {
         } else {
             if (nBackIdx == NBack.nBack.length) {
                 Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
+                isnBack = false;
                 return;
             }
             speechSct.setText(NBack.nBack[nBackIdx]);
@@ -654,6 +656,10 @@ public class EnglishAppFragment extends Fragment {
         super.onResume();
 //        loadIdx();
 //        turnPage();
+        if (engIdx+nBackIdx == 13) {
+            engIdx = 0;
+            nBackIdx = 0;
+        }
     }
 
     @Override
