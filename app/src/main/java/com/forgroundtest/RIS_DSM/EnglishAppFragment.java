@@ -444,21 +444,27 @@ public class EnglishAppFragment extends Fragment {
          * 저장 컬럼 제목 넣기
          */
         // 난중에 수정할 것. (incorrect한 index list화)
-//        writer.writeNext(new String[]{
-//                "currentTime",
-//                "starting Point of incorrect",
-//                "correct",
-//                "start time",
-//                "speaking time",});
-//        /**
-//         * 저장 컬럼별 데이터
-//         */
-//        writer.writeNext(new String[]{
-//                BaseModuleActivity.getCurrentDateTime().toString(),
-//                end+"",
-//                isCorrect+"",
-//                delayToSpeak+"",
-//                delayDuringSpeak+"",});
+        writer.writeNext(new String[]{
+                "currentTime",
+                "starting Point of incorrect",
+                "correct",
+                "start time",
+                "speaking time",});
+        /**
+         * 저장 컬럼별 데이터
+         */
+        writer.writeNext(new String[]{
+                BaseModuleActivity.getCurrentDateTime().toString(),
+                end+"",
+                isCorrect+"",
+                delayToSpeak+"",
+                delayDuringSpeak+"",});
+        try {
+            writer.close();
+        } catch (IOException e) {
+            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
 
@@ -478,39 +484,49 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("main", "저장실패");
                     }
                 });
+
         try {
-            file = new FileWriter("nback_test_string"+FILE_NAME,true);
+            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_string"+FILE_NAME;
+            file = new FileWriter(path,true);
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
         }
         writer = new CSVWriter(file);
-        /**
-         *                      getCurrentDateTime().toString()+","
-         *                      +Value.SPEED+","
-         *                      +Value.ACC+","
-         *                      +Value.GYRO_X+","
-         *                      +Value.GYRO_Y+","
-         *                      +Value.GYRO_Z+","
-         *                      +Value.LIGHT
-         */
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
         /**
          * 저장 컬럼 제목 넣기
          */
-//        writer.writeNext(new String[]{
-//                "currentTime",
-//                "count of incorrect words",
-//                "correct",
-//                "start time",
-//                "speaking time",});
-//        /**
-//         * 저장 컬럼별 데이터
-//         */
-//        writer.writeNext(new String[]{
-//                BaseModuleActivity.getCurrentDateTime().toString(),
-//                wordCnt+"",
-//                isCorrect+"",
-//                delayToSpeak+"",
-//                delayDuringSpeak+"",});
+        // 난중에 수정할 것. (incorrect한 index list화)
+        writer.writeNext(new String[]{
+                "currentTime",
+                "starting Point of incorrect",
+                "correct",
+                "start time",
+                "speaking time",});
+        /**
+         * 저장 컬럼별 데이터
+         */
+        writer.writeNext(new String[]{
+                BaseModuleActivity.getCurrentDateTime().toString(),
+                wordCnt+"",
+                isCorrect+"",
+                delayToSpeak+"",
+                delayDuringSpeak+"",});
+        try {
+            writer.close();
+        } catch (IOException e) {
+            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
     }
 
     // Initialize the tts service.
