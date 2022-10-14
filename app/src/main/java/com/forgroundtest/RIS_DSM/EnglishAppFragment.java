@@ -73,7 +73,6 @@ public class EnglishAppFragment extends Fragment {
     public static boolean isEng = false;
     public static boolean isnBack = false;
     public static Button exampi;
-    private int index = 0;
     private long delay1 = 0;
     private long delay2 = 0;
     private long speechLen1 = 0;
@@ -299,6 +298,7 @@ public class EnglishAppFragment extends Fragment {
                         postSpeech.setText(str.get(0));
                         answerCheck();
                     } else {
+                        postSpeech.setText(str.get(0));
                         nBackAnswerCheck(str.get(0));
                     }
                 }
@@ -327,7 +327,7 @@ public class EnglishAppFragment extends Fragment {
         // n백 정확도 측정 알고리즘 작성
         // 결과 firebase에 저장.
         voice = voice.replaceAll(match, "");
-        String[] nBtest = NBack.nBack[index].split(" ");
+        String[] nBtest = speechSct.getText().toString().split(" ");
         Log.e("stt", voice);
         String[] string = voice.split("");
 
@@ -346,6 +346,7 @@ public class EnglishAppFragment extends Fragment {
             if (isCorrect) {
                 cnt = sht;
             }
+            correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
         } else {
             for (int wrong = 0; wrong < string.length; wrong++) {
                 if (!string[wrong].equals(nBtest[wrong])) {
@@ -353,6 +354,12 @@ public class EnglishAppFragment extends Fragment {
                     isCorrect = false;
                     break;
                 }
+            }
+
+            if (isCorrect) {
+                correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
+            } else {
+                correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
             }
         }
 
