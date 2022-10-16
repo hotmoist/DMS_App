@@ -127,7 +127,7 @@ public class InitActivity extends AppCompatActivity {
     }
 
     private void ttsInitialize() {
-        tts.setSpeechRate(0.50f);
+        tts.setSpeechRate(0.80f);
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
