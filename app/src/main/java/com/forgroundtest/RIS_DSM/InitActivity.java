@@ -80,7 +80,7 @@ public class InitActivity extends AppCompatActivity {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    int result = tts.setLanguage(Locale.CANADA);
+                    int result = tts.setLanguage(Locale.KOREA);
                     if(result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "This Language is not supported");
                     }
@@ -103,7 +103,7 @@ public class InitActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 index = position;
-                speak(NBack.nBack[position]);
+                speak(NBack.nBackKor[position]);
                 Log.e("nBack", String.valueOf(position));
             }
         });
@@ -127,7 +127,7 @@ public class InitActivity extends AppCompatActivity {
     }
 
     private void ttsInitialize() {
-        tts.setSpeechRate(0.80f);
+        tts.setSpeechRate(1.50f);
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
@@ -287,7 +287,7 @@ public class InitActivity extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.KOREA);
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
 
         speechRecognizer.startListening(intent);

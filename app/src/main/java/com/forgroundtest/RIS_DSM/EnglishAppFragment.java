@@ -601,7 +601,7 @@ public class EnglishAppFragment extends Fragment {
             }
             speechSct.setText(NBack.nBack[nBackIdx]);
             firstKor.setText("");
-            speak(NBack.nBack[nBackIdx++]);
+            speak(NBack.nBackKor[nBackIdx++]);
         }
     }
 
@@ -609,7 +609,11 @@ public class EnglishAppFragment extends Fragment {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+        if (isnBack) {
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+        }
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
 
         speechRecognizer.startListening(intent);
@@ -631,7 +635,8 @@ public class EnglishAppFragment extends Fragment {
                     } else {
                         ttsUtterInitialize();
                         if (!isEng) {
-                            textToSpeech.setSpeechRate(0.70f);
+                            textToSpeech.setSpeechRate(1.50f);
+                            textToSpeech.setLanguage(Locale.KOREAN);
                         }
                         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
                     }
