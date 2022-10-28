@@ -48,6 +48,8 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -66,8 +68,8 @@ public class EnglishAppFragment extends Fragment {
     CSVWriter writer;
     private String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
 
-    String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best"};
-    String[] kor = {"준비 다 됐어?", "다음에 더 잘할거라고 확신해.", "모든 일이 잘되시길 빌어요."};
+    String[] eng = {"Are you all set?", "I'm sure you'll do better next time", "I wish you all the best", "Please speak slower", "I'll have to think about it", "He will be home at six", "I got first prize"};
+    String[] kor = {"준비 다 됐어?", "다음에 더 잘할거라고 확신해.", "모든 일이 잘되시길 빌어요.", "천천히 말해주세요.", "생각해봐야겠네요.", "그는 6시에 집에 갈거야.", "나는 첫 상금을 탔다."};
     public static int engIdx = 0;
     public static int nBackIdx = 0;
     public static boolean isEng = false;
@@ -77,6 +79,7 @@ public class EnglishAppFragment extends Fragment {
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
+    private int englishIndex = 0;
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
@@ -187,7 +190,25 @@ public class EnglishAppFragment extends Fragment {
         exampi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                turnPage();
+                /**
+                 * 버튼 클릭시 타이머 태스크
+                 */
+                if (EnglishAppFragment.isEng) {
+                    turnNBack(englishIndex++);
+                    Timer timer = new Timer();
+                    TimerTask timerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            cnt++;
+                            if(cnt == 7) {
+                                timer.cancel();
+                            }
+                        }
+                    };
+                    timer.schedule(timerTask,0,2000);
+                } else {
+                    turnPage();
+                }
             }
         });
 
@@ -602,7 +623,23 @@ public class EnglishAppFragment extends Fragment {
             speechSct.setText(NBack.nBack[nBackIdx]);
             firstKor.setText("");
             speak(NBack.nBackKor[nBackIdx++]);
+            nback();
         }
+    }
+
+    public void turnNBack(int engIndex) {
+        if (nBackIdx == NBack.nBack.length) {
+            Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
+            isnBack = false;
+            return;
+        }
+        speechSct.setText(NBack.nBack[nBackIdx]);
+        firstKor.setText("");
+        speak(NBack.nBackKor[nBackIdx++]);
+        nback();
+    }
+    private void nback(){
+
     }
 
     private void startListen() {
@@ -615,7 +652,7 @@ public class EnglishAppFragment extends Fragment {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         }
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
-
+        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 2000);
         speechRecognizer.startListening(intent);
     }
 
@@ -671,9 +708,11 @@ public class EnglishAppFragment extends Fragment {
 //        turnPage();
 //    }
 
+    int cnt=0;
     @Override
     public void onStart() {
         super.onStart();
+
 //        speak(speechSct.getText().toString());
     }
 
