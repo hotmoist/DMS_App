@@ -80,6 +80,7 @@ public class EnglishAppFragment extends Fragment {
     private long speechLen1 = 0;
     private long speechLen2 = 0;
     private int englishIndex = 0;
+    private int cnt = 0;
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
@@ -194,13 +195,16 @@ public class EnglishAppFragment extends Fragment {
                  * 버튼 클릭시 타이머 태스크
                  */
                 if (EnglishAppFragment.isEng) {
-                    turnNBack(englishIndex++);
+
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
+                            turnNBack(cnt);
+
                             cnt++;
                             if(cnt == 7) {
+                                cnt = 0;
                                 timer.cancel();
                             }
                         }
@@ -580,8 +584,10 @@ public class EnglishAppFragment extends Fragment {
                 something.post(new Runnable() {
                     @Override
                     public void run() {
-                        delay1 = System.currentTimeMillis();
-                        startListen();
+                        if (isEng) {
+                            delay1 = System.currentTimeMillis();
+                            startListen();
+                        }
                     }
                 });
             }
@@ -614,17 +620,18 @@ public class EnglishAppFragment extends Fragment {
             speechSct.setText(eng[engIdx]);
             firstKor.setText(kor[engIdx++]);
             speak(speechSct.getText().toString());
-        } else {
-            if (nBackIdx == NBack.nBack.length) {
-                Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
-                isnBack = false;
-                return;
-            }
-            speechSct.setText(NBack.nBack[nBackIdx]);
-            firstKor.setText("");
-            speak(NBack.nBackKor[nBackIdx++]);
-            nback();
         }
+//        } else {
+//            if (nBackIdx == NBack.nBack.length) {
+//                Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
+//                isnBack = false;
+//                return;
+//            }
+//            speechSct.setText(NBack.nBack[nBackIdx]);
+//            firstKor.setText("");
+//            speak(NBack.nBackKor[nBackIdx++]);
+//            nback();
+//        }
     }
 
     public void turnNBack(int engIndex) {
@@ -635,10 +642,10 @@ public class EnglishAppFragment extends Fragment {
         }
         speechSct.setText(NBack.nBack[nBackIdx]);
         firstKor.setText("");
-        speak(NBack.nBackKor[nBackIdx++]);
-        nback();
+        speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[engIndex]));
+        nback(engIndex);
     }
-    private void nback(){
+    private void nback(int engIndex) {
 
     }
 
@@ -708,7 +715,7 @@ public class EnglishAppFragment extends Fragment {
 //        turnPage();
 //    }
 
-    int cnt=0;
+
     @Override
     public void onStart() {
         super.onStart();

@@ -16,16 +16,16 @@ public class NBack {
         nBack[8] = "5 0 5 1 5 4 8"; // five zero nine one five four eight
         nBack[9] = "3 9 3 7 3 9 2"; // three nine three seven three nine two
 
-        nBackKor[0] = "일 칠 오 구 이 일 칠";
-        nBackKor[1] = "일 오 육 칠 칠 일 오";
-        nBackKor[2] = "사 육 일 사 칠 구 칠";
-        nBackKor[3] = "사 삼 오 영 구 이 칠";
-        nBackKor[4] = "육 사 영 구 육 구 칠";
-        nBackKor[5] = "일 팔 일 삼 팔 사 일";
-        nBackKor[6] = "오 구 오 일 팔 일 칠";
-        nBackKor[7] = "육 삼 사 육 오 구 팔";
-        nBackKor[8] = "오 영 구 일 오 사 팔";
-        nBackKor[9] = "삼 구 삼 칠 삼 구 이";
+        nBackKor[0] = "일칠오구이일칠";
+        nBackKor[1] = "일오육칠칠일오";
+        nBackKor[2] = "사육일사칠구칠";
+        nBackKor[3] = "사삼오영구이칠";
+        nBackKor[4] = "육사영구육구칠";
+        nBackKor[5] = "일팔일삼팔사일";
+        nBackKor[6] = "오구오일팔일칠";
+        nBackKor[7] = "육삼사육오구팔";
+        nBackKor[8] = "오영구일오사팔";
+        nBackKor[9] = "삼구삼칠삼구이";
 
     }
 }
