@@ -1,7 +1,11 @@
 package com.forgroundtest.RIS_DSM;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static com.forgroundtest.RIS_DSM.Value.ANS;
 import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
+import static com.forgroundtest.RIS_DSM.Value.RESULT_END;
+import static com.forgroundtest.RIS_DSM.Value.RESULT_START;
+import static com.forgroundtest.RIS_DSM.Value.delayToSpeak;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -194,7 +198,8 @@ public class EnglishAppFragment extends Fragment {
                 /**
                  * 버튼 클릭시 타이머 태스크
                  */
-                if (EnglishAppFragment.isEng) {
+                Log.e("err", isEng+"");
+                if (EnglishAppFragment.isnBack) {
 
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
@@ -203,6 +208,12 @@ public class EnglishAppFragment extends Fragment {
                             turnNBack(cnt);
 
                             cnt++;
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    speechRecognizer.stopListening();
+                                }
+                            });
                             if(cnt == 7) {
                                 cnt = 0;
                                 timer.cancel();
@@ -286,7 +297,8 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onBeginningOfSpeech() {
                 delay2 = System.currentTimeMillis();
-                speechLen1 = System.currentTimeMillis();
+                RESULT_START = delay2 - speechLen1;
+                RESULT_END = delay2 - speechLen2;
                 Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
             }
 
@@ -307,12 +319,16 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onError(int i) {
-                startListen();
+                if (isEng) {
+                    startListen();
+                }
+                if( System.currentTimeMillis() - speechLen1<=2000){
+                    startListen();
+                }
             }
 
             @Override
             public void onResults(Bundle bundle) {
-                speechLen2 = System.currentTimeMillis();
                 Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
 
                 ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -324,7 +340,7 @@ public class EnglishAppFragment extends Fragment {
                         answerCheck();
                     } else {
                         postSpeech.setText(str.get(0));
-                        nBackAnswerCheck(str.get(0));
+                        nBackAnswerCheck(ANS, str.get(0));
                     }
                 }
 
@@ -348,49 +364,147 @@ public class EnglishAppFragment extends Fragment {
     }
 
     // Compare answer to nBack Input
-    private void nBackAnswerCheck(String voice) {
+    private void nBackAnswerCheck(String ans, String voice) {
         // n백 정확도 측정 알고리즘 작성
         // 결과 firebase에 저장.
-        voice = voice.replaceAll(match, "");
-        String[] nBtest = speechSct.getText().toString().split(" ");
-        Log.e("stt", voice);
-        String[] string = voice.split("");
-
-        int cnt = 0;
-        boolean isCorrect = true;
-
-        if (string.length != nBtest.length) {
-            int sht = Math.min(string.length, nBtest.length);
-            for (int wrong = 0; wrong < sht; wrong++) {
-                if (!string[wrong].equals(nBtest[wrong])) {
-                    cnt = wrong+1;
-                    isCorrect = false;
-                    break;
+        if(voice.length()>0 && cnt > 1 &&
+                (NBack.nBackKor[engIdx].toCharArray()[cnt-2]==NBack.nBackKor[engIdx].toCharArray()[cnt])){
+            //정답
+            //반응시간, 정답유무, 시간
+            try {
+                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                file = new FileWriter(path,true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+            }
+            writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+            /**
+             * 저장 컬럼 제목 넣기
+             */
+            // 난중에 수정할 것. (incorrect한 index list화)
+            writer.writeNext(new String[]{
+                    "currentTime",
+                    "index",
+                    "correct",
+                    "tts start to stt end",
+                    "tts end to stt end",});
+            /**
+             * 저장 컬럼별 데이터
+             */
+            writer.writeNext(new String[]{
+                    BaseModuleActivity.getCurrentDateTime().toString(),
+                    cnt+"",
+                    "true",
+                    RESULT_START.toString(),
+                    RESULT_END.toString(),
                 }
-            }
-            if (isCorrect) {
-                cnt = sht;
-            }
-            correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
-        } else {
-            for (int wrong = 0; wrong < string.length; wrong++) {
-                if (!string[wrong].equals(nBtest[wrong])) {
-                    cnt = wrong+1;
-                    isCorrect = false;
-                    break;
-                }
+            );
+            try {
+                writer.close();
+            } catch (IOException e) {
+                Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                e.printStackTrace();
             }
 
-            if (isCorrect) {
-                correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
-            } else {
-                correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
+        }else {
+
+            try {
+                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                file = new FileWriter(path,true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
             }
+            writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+            /**
+             * 저장 컬럼 제목 넣기
+             */
+            // 난중에 수정할 것. (incorrect한 index list화)
+            writer.writeNext(new String[]{
+                    "currentTime",
+                    "index",
+                    "correct",
+                    "tts start to stt end",
+                    "tts end to stt end",});
+            /**
+             * 저장 컬럼별 데이터
+             */
+            writer.writeNext(new String[]{
+                            BaseModuleActivity.getCurrentDateTime().toString(),
+                            cnt+"",
+                            "false",
+                            RESULT_START.toString(),
+                            RESULT_END.toString(),
+                    }
+            );
+            try {
+                writer.close();
+            } catch (IOException e) {
+                Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
+
         }
 
-        writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
-        Log.e("nBack", "good");
-//        turnPage();
+//        voice = voice.replaceAll(match, "");
+//        String[] nBtest = speechSct.getText().toString().split(" ");
+//        Log.e("stt", voice);
+//        String[] string = voice.split("");
+//
+//        int cnt = 0;
+//        boolean isCorrect = true;
+//
+//        if (string.length != nBtest.length) {
+//            int sht = Math.min(string.length, nBtest.length);
+//            for (int wrong = 0; wrong < sht; wrong++) {
+//                if (!string[wrong].equals(nBtest[wrong])) {
+//                    cnt = wrong+1;
+//                    isCorrect = false;
+//                    break;
+//                }
+//            }
+//            if (isCorrect) {
+//                cnt = sht;
+//            }
+//            correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
+//        } else {
+//            for (int wrong = 0; wrong < string.length; wrong++) {
+//                if (!string[wrong].equals(nBtest[wrong])) {
+//                    cnt = wrong+1;
+//                    isCorrect = false;
+//                    break;
+//                }
+//            }
+//
+//            if (isCorrect) {
+//                correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
+//            } else {
+//                correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
+//            }
+//        }
+//
+//        writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
+//        Log.e("nBack", "good");
+////        turnPage();
     }
 
     // Compare answer to Input
@@ -571,6 +685,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onDone(String s) {
+                speechLen2 = System.currentTimeMillis();
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -640,13 +755,17 @@ public class EnglishAppFragment extends Fragment {
             isnBack = false;
             return;
         }
-        speechSct.setText(NBack.nBack[nBackIdx]);
-        firstKor.setText("");
-        speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[engIndex]));
-        nback(engIndex);
-    }
-    private void nback(int engIndex) {
-
+//        speechSct.setText(NBack.nBack[nBackIdx]);
+//        firstKor.setText("");
+        String ans = speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[engIndex]));
+        ANS = ans;
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("START_LISTEN", "듣기시작");
+                startListen();
+            }
+        });
     }
 
     private void startListen() {
@@ -659,11 +778,11 @@ public class EnglishAppFragment extends Fragment {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         }
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
-        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 2000);
+//        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS","");
         speechRecognizer.startListening(intent);
     }
 
-    private void speak(String text) {
+    private String speak(String text) {
         if (textToSpeech != null) {
             textToSpeech.stop();
             textToSpeech.shutdown();
@@ -681,6 +800,7 @@ public class EnglishAppFragment extends Fragment {
                         if (!isEng) {
                             textToSpeech.setSpeechRate(1.50f);
                             textToSpeech.setLanguage(Locale.KOREAN);
+                            speechLen1 = System.currentTimeMillis();
                         }
                         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
                     }
@@ -689,6 +809,7 @@ public class EnglishAppFragment extends Fragment {
                 }
             }
         });
+        return text;
     }
 
 //    private void saveIdx() {
