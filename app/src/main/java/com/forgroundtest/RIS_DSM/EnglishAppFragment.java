@@ -327,8 +327,9 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onRmsChanged(float v) {
-                Log.e("RmsChanged", "listen change : "+BaseModuleActivity.getCurrentDateTime());
-
+                if( v>5 || v<-5) {
+                    Log.e("ORDER", "listen change : " + v);
+                }
             }
 
             @Override
@@ -360,7 +361,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                Log.e("ORDER", "listen Result : "+System.currentTimeMillis());
+                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime());
 
                 Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
 
@@ -714,7 +715,7 @@ public class EnglishAppFragment extends Fragment {
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
-                Log.e("ORDER", "Speak run");
+                Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime());
             }
 
             @Override
