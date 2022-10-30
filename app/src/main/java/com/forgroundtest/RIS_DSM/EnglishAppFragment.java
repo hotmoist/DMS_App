@@ -211,6 +211,30 @@ public class EnglishAppFragment extends Fragment {
                     }
                     nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
 
+                    try {
+                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                        file = new FileWriter(path,true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+                    }
+                    writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+                    /**
+                     * 저장 컬럼 제목 넣기
+                     */
+                    // 난중에 수정할 것. (incorrect한 index list화)
+                    writer.writeNext(new String[]{
+                            BaseModuleActivity.getCurrentDateTime(),
+                            "nback test 시작",});
 
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
