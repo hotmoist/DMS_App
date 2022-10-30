@@ -86,6 +86,8 @@ public class EnglishAppFragment extends Fragment {
     private int englishIndex = 0;
     private int cnt = 0;
     long start_record = 0l;
+    private boolean isSetting = false;
+    int count=0;
 
 
     private com.google.android.material.button.MaterialButton appStartBtn;
@@ -207,23 +209,23 @@ public class EnglishAppFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime());
+                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                             start_record = System.currentTimeMillis();
                             startListen();
                         }
                     });
                     TimerTask timerTask = new TimerTask() {
-                        int count=0;
                         @Override
                         public void run() {
 
                             if(count == 7) {
                                 count = 0;
 
+                                isSetting = false;
                                 getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-                                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime());
+                                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                                         speechRecognizer.stopListening();
                                         speechRecognizer.cancel();
                                         /**
@@ -308,27 +310,40 @@ public class EnglishAppFragment extends Fragment {
     }
 
     // Initialize The stt service.
+    boolean sw = true;
     private void sttInitialize() {
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
             public void onBeginningOfSpeech() {
                 delay2 = System.currentTimeMillis();
-                RESULT_START = delay2 - speechLen1;
-                RESULT_END = delay2 - speechLen2;
-                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
 
                 Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
             }
 
             @Override
             public void onRmsChanged(float v) {
+                long time = System.currentTimeMillis();
                 if( v>5 || v<-5) {
-                    Log.e("ORDER", "listen change : " + v);
+                    Log.e("ORDER", "listen change : " + v+"  -- "+count);
+
+
+                    if(speechLen2-speechLen1>0 && sw) {
+                        Log.e("ORDER", "대답했습니다. : ");
+                        Log.e("ORDER", "끝 - 시작 : " + (speechLen2 - speechLen1) + "  -- " + count);
+                        /**
+                         * 저장
+                         */
+
+                        
+
+                        sw = false;
+                    }
                 }
             }
 
@@ -341,7 +356,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onEndOfSpeech() {
-                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
@@ -353,15 +368,13 @@ public class EnglishAppFragment extends Fragment {
                 }
 //                startListen();
                 if( System.currentTimeMillis() - start_record<=15750) {
-                    Log.e("ORDER", "listen error : " + BaseModuleActivity.getCurrentDateTime());
-                    Log.e("ORDER", "listen error : " + (System.currentTimeMillis() - start_record));
                     startListen();
                 }
             }
 
             @Override
             public void onResults(Bundle bundle) {
-                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
 
                 Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
 
@@ -374,11 +387,10 @@ public class EnglishAppFragment extends Fragment {
                         answerCheck();
                     } else {
                         postSpeech.setText(str.get(0));
-                        nBackAnswerCheck(ANS, str.get(0));
                     }
                 }
                 speechRecognizer.cancel();
-                Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
@@ -715,12 +727,20 @@ public class EnglishAppFragment extends Fragment {
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
+                speechLen1 = System.currentTimeMillis();
                 Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime());
             }
 
             @Override
             public void onDone(String s) {
+                if (!isSetting) {
+//                    speechLen2 = System.currentTimeMillis();
+                    isSetting = true;
+                }
                 speechLen2 = System.currentTimeMillis();
+                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime());
+
+                sw = true;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -835,7 +855,6 @@ public class EnglishAppFragment extends Fragment {
                         if (!isEng) {
                             textToSpeech.setSpeechRate(1.50f);
                             textToSpeech.setLanguage(Locale.KOREAN);
-                            speechLen1 = System.currentTimeMillis();
                         }
                         textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
                     }
