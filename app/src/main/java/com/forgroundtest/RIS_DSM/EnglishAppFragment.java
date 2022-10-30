@@ -2,6 +2,8 @@ package com.forgroundtest.RIS_DSM;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
+import static com.forgroundtest.RIS_DSM.Value.RESULT_END;
+import static com.forgroundtest.RIS_DSM.Value.RESULT_START;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -47,6 +49,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -79,8 +82,11 @@ public class EnglishAppFragment extends Fragment {
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
-    private int englishIndex = 0;
+    private long speechLen3 = 0;
+    private char[] nBackArr;
     private int cnt = 0;
+    private String[] input = new String[8];
+    private boolean isSetting = false;
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
@@ -102,6 +108,7 @@ public class EnglishAppFragment extends Fragment {
     private ImageButton replayBtn;
     private ImageButton correct;
     private ImageButton backBtn;
+    private Button ttsStarter;
 
     private LinearLayout something;
 
@@ -174,6 +181,7 @@ public class EnglishAppFragment extends Fragment {
         replayBtn = rootView.findViewById(R.id.replaybtn);
         correct = rootView.findViewById(R.id.correct);
         backBtn = rootView.findViewById(R.id.backbutton1);
+        ttsStarter = rootView.findViewById(R.id.ttsStater);
         blindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -194,25 +202,193 @@ public class EnglishAppFragment extends Fragment {
                 /**
                  * 버튼 클릭시 타이머 태스크
                  */
-                if (EnglishAppFragment.isEng) {
+                if (EnglishAppFragment.isnBack) {
+                    Arrays.fill(input, null);
+                    nBackArr = NBack.nBackKor[nBackIdx].toCharArray();
+                    speak(String.valueOf(nBackArr[cnt++]));
+                }
+//                if (EnglishAppFragment.isEng) {
+//
+//                    Timer timer = new Timer();
+//                    TimerTask timerTask = new TimerTask() {
+//                        @Override
+//                        public void run() {
+//                            turnNBack(cnt);
+//
+//                            cnt++;
+//                            if(cnt == 7) {
+//                                cnt = 0;
+//                                timer.cancel();
+//                            }
+//                        }
+//                    };
+//                    timer.schedule(timerTask,0,2000);
+//                } else {
+//                    turnPage();
+//                }
+            }
+        });
 
-                    Timer timer = new Timer();
-                    TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            turnNBack(cnt);
+        ttsStarter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isSetting = false;
+                        if (input[cnt] == null) {
+                            speechRecognizer.stopListening();
+                            speechRecognizer.cancel();
+                            Log.e("leng == 0", "here");
 
-                            cnt++;
-                            if(cnt == 7) {
-                                cnt = 0;
-                                timer.cancel();
+                            try {
+                                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                                file = new FileWriter(path,true);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+                            }
+                            writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+                            /**
+                             * 저장 컬럼 제목 넣기
+                             */
+                            // 난중에 수정할 것. (incorrect한 index list화)
+                            writer.writeNext(new String[]{
+                                    "currentTime",
+                                    "index",
+                                    "correct",
+                                    "tts start to stt end",
+                                    "tts end to stt end",});
+                            /**
+                             * 저장 컬럼별 데이터
+                             */
+                            writer.writeNext(new String[]{
+                                            BaseModuleActivity.getCurrentDateTime().toString(),
+                                            cnt+"",
+                                            "false",
+                                            RESULT_START + "",
+                                            RESULT_END + "",
+                                    }
+                            );
+                            try {
+                                writer.close();
+                            } catch (IOException e) {
+                                Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                                e.printStackTrace();
+                            }
+                        } else if (input[cnt].length() > 0) {
+                            // csv write
+                            Log.e("leng > 0", "here");
+                            if (cnt > 2 && nBackArr[cnt-3] == nBackArr[cnt-1]) {
+                                Log.e("answer", "here");
+                                try {
+                                    String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                                    file = new FileWriter(path,true);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+                                }
+                                writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+                                /**
+                                 * 저장 컬럼 제목 넣기
+                                 */
+                                // 난중에 수정할 것. (incorrect한 index list화)
+                                writer.writeNext(new String[]{
+                                        "currentTime",
+                                        "index",
+                                        "correct",
+                                        "tts start to stt end",
+                                        "tts end to stt end",});
+                                /**
+                                 * 저장 컬럼별 데이터
+                                 */
+                                writer.writeNext(new String[]{
+                                                BaseModuleActivity.getCurrentDateTime().toString(),
+                                                cnt+"",
+                                                "true",
+                                                RESULT_START + "",
+                                                RESULT_END + "",
+                                        }
+                                );
+                                try {
+                                    writer.close();
+                                } catch (IOException e) {
+                                    Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                try {
+                                    String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                                    file = new FileWriter(path,true);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+                                }
+                                writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+                                /**
+                                 * 저장 컬럼 제목 넣기
+                                 */
+                                // 난중에 수정할 것. (incorrect한 index list화)
+                                writer.writeNext(new String[]{
+                                        "currentTime",
+                                        "index",
+                                        "correct",
+                                        "tts start to stt end",
+                                        "tts end to stt end",});
+                                /**
+                                 * 저장 컬럼별 데이터
+                                 */
+                                writer.writeNext(new String[]{
+                                                BaseModuleActivity.getCurrentDateTime().toString(),
+                                                cnt+"",
+                                                "false",
+                                                RESULT_START + "",
+                                                RESULT_END + "",
+                                        }
+                                );
+                                try {
+                                    writer.close();
+                                } catch (IOException e) {
+                                    Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                    };
-                    timer.schedule(timerTask,0,2000);
-                } else {
-                    turnPage();
-                }
+                        if (cnt < 7) {
+                            speak(String.valueOf(nBackArr[cnt++]));
+                        } else {
+                            cnt = 0;
+                            isnBack = false;
+                        }
+                    }
+                }, 1000);
             }
         });
 
@@ -281,12 +457,17 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
                 Log.e("STT", "ready");
+                speechLen3 = System.currentTimeMillis();
             }
 
             @Override
             public void onBeginningOfSpeech() {
-                delay2 = System.currentTimeMillis();
-                speechLen1 = System.currentTimeMillis();
+//                delay2 = System.currentTimeMillis();
+                if (System.currentTimeMillis()-speechLen2 > 0 && !isSetting) {
+                    RESULT_START = System.currentTimeMillis() - speechLen1;
+                    RESULT_END = System.currentTimeMillis() - speechLen2;
+                    isSetting = true;
+                }
                 Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
             }
 
@@ -303,28 +484,32 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onEndOfSpeech() {
                 Log.e("STT", "speach end");
+
             }
 
             @Override
             public void onError(int i) {
-                startListen();
+                if (isnBack && System.currentTimeMillis() - speechLen3 <= 2000) {
+                    startListen();
+                }
+
+                if (isEng) {
+                    startListen();
+                }
             }
 
             @Override
             public void onResults(Bundle bundle) {
-                speechLen2 = System.currentTimeMillis();
-                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
-
                 ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 
 
                 if (str.get(0) != null) {
-                    if (!isnBack) {
+                    if (isEng) {
                         postSpeech.setText(str.get(0));
                         answerCheck();
                     } else {
-                        postSpeech.setText(str.get(0));
-                        nBackAnswerCheck(str.get(0));
+                        input[cnt] = str.get(0);
+//                        nBackAnswerCheck(str.get(0));
                     }
                 }
 
@@ -338,6 +523,7 @@ public class EnglishAppFragment extends Fragment {
 //                    text += result;
 //
 //                postSpeech.setText(text);
+
             }
 
             @Override
@@ -567,18 +753,20 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onStart(String s) {
                 Log.e("tts", "run");
+                speechLen1 = System.currentTimeMillis();
             }
 
             @Override
             public void onDone(String s) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        follow.setText("이제 따라해보세요.");
-                        speaking.setBackgroundResource(R.drawable.circleshape);
-                        speaking.setTextColor(Color.WHITE);
-                    }
-                });
+//                getActivity().runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        follow.setText("이제 따라해보세요.");
+//                        speaking.setBackgroundResource(R.drawable.circleshape);
+//                        speaking.setTextColor(Color.WHITE);
+//                    }
+//                });
+
 
                 // stt must be run in main thread.
                 something.post(new Runnable() {
@@ -587,6 +775,10 @@ public class EnglishAppFragment extends Fragment {
                         if (isEng) {
                             delay1 = System.currentTimeMillis();
                             startListen();
+                        } else {
+                            speechLen2 = System.currentTimeMillis();
+                            startListen();
+                            ttsStarter.callOnClick();
                         }
                     }
                 });
@@ -659,7 +851,7 @@ public class EnglishAppFragment extends Fragment {
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         }
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
-        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 2000);
+//        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS", 2000);
         speechRecognizer.startListening(intent);
     }
 
