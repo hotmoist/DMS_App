@@ -85,6 +85,8 @@ public class EnglishAppFragment extends Fragment {
     private long speechLen2 = 0;
     private int englishIndex = 0;
     private int cnt = 0;
+    long start_record = 0l;
+
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
@@ -202,25 +204,44 @@ public class EnglishAppFragment extends Fragment {
                 if (EnglishAppFragment.isnBack) {
 
                     Timer timer = new Timer();
-                    TimerTask timerTask = new TimerTask() {
+                    getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            turnNBack(cnt);
+                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime());
+                            start_record = System.currentTimeMillis();
+                            startListen();
+                        }
+                    });
+                    TimerTask timerTask = new TimerTask() {
+                        int count=0;
+                        @Override
+                        public void run() {
 
-                            cnt++;
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    speechRecognizer.stopListening();
-                                }
-                            });
-                            if(cnt == 7) {
-                                cnt = 0;
+                            if(count == 7) {
+                                count = 0;
+
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime());
+                                        speechRecognizer.stopListening();
+                                        speechRecognizer.cancel();
+                                        /**
+                                         * csv 오답 저장
+                                         */
+                                    }
+                                });
+                                timer.purge();
                                 timer.cancel();
+                                return;
                             }
+
+                            speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[count]));
+
+                            count++;
                         }
                     };
-                    timer.schedule(timerTask,0,2000);
+                    timer.schedule(timerTask,0,2250);
                 } else {
                     turnPage();
                 }
@@ -291,7 +312,7 @@ public class EnglishAppFragment extends Fragment {
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-                Log.e("STT", "ready");
+                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime());
             }
 
             @Override
@@ -299,36 +320,48 @@ public class EnglishAppFragment extends Fragment {
                 delay2 = System.currentTimeMillis();
                 RESULT_START = delay2 - speechLen1;
                 RESULT_END = delay2 - speechLen2;
+                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime());
+
                 Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
             }
 
             @Override
             public void onRmsChanged(float v) {
+                Log.e("RmsChanged", "listen change : "+BaseModuleActivity.getCurrentDateTime());
 
             }
 
             @Override
             public void onBufferReceived(byte[] bytes) {
+                Log.e("ORDER", "listen buffer : "+BaseModuleActivity.getCurrentDateTime());
+
 
             }
 
             @Override
             public void onEndOfSpeech() {
-                Log.e("STT", "speach end");
+                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime());
             }
 
             @Override
             public void onError(int i) {
+//                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
+
                 if (isEng) {
                     startListen();
                 }
-                if( System.currentTimeMillis() - speechLen1<=2000){
+//                startListen();
+                if( System.currentTimeMillis() - start_record<=15750) {
+                    Log.e("ORDER", "listen error : " + BaseModuleActivity.getCurrentDateTime());
+                    Log.e("ORDER", "listen error : " + (System.currentTimeMillis() - start_record));
                     startListen();
                 }
             }
 
             @Override
             public void onResults(Bundle bundle) {
+                Log.e("ORDER", "listen Result : "+System.currentTimeMillis());
+
                 Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
 
                 ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
@@ -343,7 +376,8 @@ public class EnglishAppFragment extends Fragment {
                         nBackAnswerCheck(ANS, str.get(0));
                     }
                 }
-
+                speechRecognizer.cancel();
+                Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime());
             }
 
             @Override
@@ -680,7 +714,7 @@ public class EnglishAppFragment extends Fragment {
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
-                Log.e("tts", "run");
+                Log.e("ORDER", "Speak run");
             }
 
             @Override
@@ -709,7 +743,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onError(String s) {
-                Log.e("tts", "error");
+                Log.e("ORDER", "TTS error");
             }
         });
     }
