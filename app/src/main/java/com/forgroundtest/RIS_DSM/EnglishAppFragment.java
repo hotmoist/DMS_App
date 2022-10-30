@@ -88,6 +88,7 @@ public class EnglishAppFragment extends Fragment {
     long start_record = 0l;
     private boolean isSetting = false;
     int count=0;
+    private char[] nBackArr;
 
 
     private com.google.android.material.button.MaterialButton appStartBtn;
@@ -203,21 +204,18 @@ public class EnglishAppFragment extends Fragment {
                  * 버튼 클릭시 타이머 태스크
                  */
                 Log.e("err", isEng+"");
-                if (EnglishAppFragment.isnBack) {
+                if (true) {
+                    if (nBackIdx == 10) {
+                        Toast.makeText(getContext(), "nBackTest가 더 이상 없습니다.", Toast.LENGTH_SHORT);
+                        return;
+                    }
+                    nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
+
 
                     Timer timer = new Timer();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-                            start_record = System.currentTimeMillis();
-                            startListen();
-                        }
-                    });
                     TimerTask timerTask = new TimerTask() {
                         @Override
                         public void run() {
-
                             if(count == 7) {
                                 count = 0;
 
@@ -227,22 +225,32 @@ public class EnglishAppFragment extends Fragment {
                                     public void run() {
                                         Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                                         speechRecognizer.stopListening();
-                                        speechRecognizer.cancel();
+                                        //speechRecognizer.cancel();
                                         /**
                                          * csv 오답 저장
                                          */
                                     }
                                 });
-                                timer.purge();
                                 timer.cancel();
                                 return;
                             }
 
-                            speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[count]));
 
+                            speak(String.valueOf(nBackArr[count]));
                             count++;
+
+
                         }
                     };
+                    start_record = System.currentTimeMillis();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+                            sw=true;
+                            startListen();
+                        }
+                    });
                     timer.schedule(timerTask,0,2250);
                 } else {
                     turnPage();
@@ -329,20 +337,79 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onRmsChanged(float v) {
                 long time = System.currentTimeMillis();
+
                 if( v>5 || v<-5) {
                     Log.e("ORDER", "listen change : " + v+"  -- "+count);
 
 
-                    if(speechLen2-speechLen1>0 && sw) {
+                    if(speechLen2-speechLen1>=0) {
                         Log.e("ORDER", "대답했습니다. : ");
-                        Log.e("ORDER", "끝 - 시작 : " + (speechLen2 - speechLen1) + "  -- " + count);
+                        Log.e("ORDER", "끝 - 시작 : " + (time - speechLen2) + "  -- " + count);
                         /**
                          * 저장
+                         *
                          */
 
-                        
+                        try {
+                            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                            file = new FileWriter(path,true);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+                        }
+                        writer = new CSVWriter(file);
+/**
+ *                      getCurrentDateTime().toString()+","
+ *                      +Value.SPEED+","
+ *                      +Value.ACC+","
+ *                      +Value.GYRO_X+","
+ *                      +Value.GYRO_Y+","
+ *                      +Value.GYRO_Z+","
+ *                      +Value.LIGHT
+ */
+                        /**
+                         * 저장 컬럼 제목 넣기
+                         */
+                        // 난중에 수정할 것. (incorrect한 index list화)
+                        writer.writeNext(new String[]{
+                                "currentTime",
+                                "index",
+                                "correct",
+                                "tts start to stt end",
+                                "tts end to stt end",});
+                        /**
+                         * 저장 컬럼별 데이터
+                         */
+                        if ( count > 2 && nBackArr[count-3] == nBackArr[count-1]) {
+                            writer.writeNext(new String[]{
+                                            BaseModuleActivity.getCurrentDateTime().toString(),
+                                            count + "",
+                                            "true",
+                                            (time - speechLen1)+"",
+                                            (time - speechLen2)+"",
+                                    }
+                            );
+                        }else{
+                            writer.writeNext(new String[]{
+                                            BaseModuleActivity.getCurrentDateTime().toString(),
+                                            count + "",
+                                            "false",
+                                            (time - speechLen1)+"",
+                                            (time - speechLen2)+"",
+                                    }
+                            );
+                        }
+
+                        try {
+                            writer.close();
+                        } catch (IOException e) {
+                            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+                            e.printStackTrace();
+                        }
 
                         sw = false;
+                        speechRecognizer.stopListening();
+                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                     }
                 }
             }
@@ -361,7 +428,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onError(int i) {
-//                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
 
                 if (isEng) {
                     startListen();
@@ -374,23 +441,25 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-
-                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
-
-                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-
-
-                if (str.get(0) != null) {
-                    if (!isnBack) {
-                        postSpeech.setText(str.get(0));
-                        answerCheck();
-                    } else {
-                        postSpeech.setText(str.get(0));
-                    }
-                }
-                speechRecognizer.cancel();
-                Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//
+//                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
+//
+//                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+//
+//
+//                if (str.get(0) != null) {
+//                    if (!isnBack) {
+//                        postSpeech.setText(str.get(0));
+//                        answerCheck();
+//                    } else {
+//                        postSpeech.setText(str.get(0));
+//                    }
+//                }
+//                if(!str.get(0).equals("네")) {
+//                    startListen();
+//                }
+                speechRecognizer.stopListening();
             }
 
             @Override
@@ -728,7 +797,7 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onStart(String s) {
                 speechLen1 = System.currentTimeMillis();
-                Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
@@ -738,7 +807,7 @@ public class EnglishAppFragment extends Fragment {
                     isSetting = true;
                 }
                 speechLen2 = System.currentTimeMillis();
-                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime());
+                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
 
                 sw = true;
                 getActivity().runOnUiThread(new Runnable() {
