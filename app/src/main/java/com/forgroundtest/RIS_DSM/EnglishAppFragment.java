@@ -212,7 +212,7 @@ public class EnglishAppFragment extends Fragment {
                     nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
 
                     try {
-                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/"+FILE_NAME;
                         file = new FileWriter(path,true);
                     } catch (IOException e) {
                         e.printStackTrace();
