@@ -337,8 +337,9 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onRmsChanged(float v) {
                 long time = System.currentTimeMillis();
+                Log.e("ORDER", "listen change : " + v+"  -- "+count);
 
-                if( v>5 || v<-5) {
+                if( v>=10 || v<=-10) {
                     Log.e("ORDER", "listen change : " + v+"  -- "+count);
 
 
@@ -409,6 +410,7 @@ public class EnglishAppFragment extends Fragment {
 
                         sw = false;
                         speechRecognizer.stopListening();
+
                         Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                     }
                 }
@@ -441,21 +443,21 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onResults(Bundle bundle) {
-//                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+
+                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
+
+                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+
 //
-//                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
-//
-//                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-//
-//
-//                if (str.get(0) != null) {
-//                    if (!isnBack) {
-//                        postSpeech.setText(str.get(0));
-//                        answerCheck();
-//                    } else {
-//                        postSpeech.setText(str.get(0));
-//                    }
-//                }
+                if (str.get(0) != null) {
+                    if (!isnBack) {
+                        postSpeech.setText(str.get(0));
+                        answerCheck();
+                    } else {
+                        postSpeech.setText(str.get(0));
+                    }
+                }
 //                if(!str.get(0).equals("네")) {
 //                    startListen();
 //                }
