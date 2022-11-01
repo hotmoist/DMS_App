@@ -88,7 +88,7 @@ public class BaseModuleActivity extends AppCompatActivity {
     Timer timer;
     TimerTask timerTask;
     FileWriter file;
-    CSVWriter writer;
+    static CSVWriter writer;
 
     /**
      * firebase 변수
