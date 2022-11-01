@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.icu.text.SimpleDateFormat;
 import android.media.AudioManager;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -47,6 +48,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.opencsv.CSVWriter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Date;
@@ -83,6 +85,8 @@ public class EnglishAppFragment extends Fragment {
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
+    private long len1 = 0;
+    private long len2 = 0;
     private int englishIndex = 0;
     private int cnt = 0;
     long start_record = 0l;
@@ -96,6 +100,7 @@ public class EnglishAppFragment extends Fragment {
     private SpeechRecognizer speechRecognizer = null;
 
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    private MediaRecorder mediaRecorder;
 
     private NBack nBack = new NBack();
     private TextView speaking;
@@ -203,8 +208,9 @@ public class EnglishAppFragment extends Fragment {
                 /**
                  * 버튼 클릭시 타이머 태스크
                  */
-                Log.e("err", isEng+"");
+
                 if (true) {
+
                     if (nBackIdx == 10) {
                         Toast.makeText(getContext(), "nBackTest가 더 이상 없습니다.", Toast.LENGTH_SHORT);
                         return;
@@ -248,33 +254,43 @@ public class EnglishAppFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-                                        speechRecognizer.stopListening();
+//                                        speechRecognizer.stopListening();
                                         //speechRecognizer.cancel();
                                         /**
                                          * csv 오답 저장
                                          */
+                                        if (mediaRecorder != null) {
+                                            int amplitude = mediaRecorder.getMaxAmplitude();
+                                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
+                                            Log.e("amplitude", String.valueOf(amplitudeDb));
+                                            mediaRecorder.stop();
+                                            mediaRecorder.release();
+                                            mediaRecorder = null;
+                                        }
                                     }
                                 });
                                 timer.cancel();
                                 return;
                             }
 
-
+                            if (mediaRecorder != null) {
+                                int amplitude = mediaRecorder.getMaxAmplitude();
+                                double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
+                                Log.e("amplitude", String.valueOf(amplitudeDb));
+                            }
                             speak(String.valueOf(nBackArr[count]));
                             count++;
-
-
                         }
                     };
                     start_record = System.currentTimeMillis();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-                            sw=true;
-                            startListen();
-                        }
-                    });
+//                    getActivity().runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Log.e("ORDER", "듣기시작 : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//                            sw=true;
+//                            startListen();
+//                        }
+//                    });
                     timer.schedule(timerTask,0,2250);
                 } else {
                     turnPage();
@@ -314,14 +330,11 @@ public class EnglishAppFragment extends Fragment {
 
         sttInitialize();
 
-        replayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                speak(speechSct.getText().toString());
-            }
-        });
 
-        requestRecordAudioPermission();
+
+        if (getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE)) {
+            requestRecordAudioPermission();
+        }
 
         AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         audioManager.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
@@ -852,6 +865,13 @@ public class EnglishAppFragment extends Fragment {
                         if (isEng) {
                             delay1 = System.currentTimeMillis();
                             startListen();
+                        } else {
+                            try {
+                                Log.e("media", "start");
+                                mediaRecordStart();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
@@ -862,6 +882,56 @@ public class EnglishAppFragment extends Fragment {
                 Log.e("ORDER", "TTS error");
             }
         });
+    }
+
+    private void mediaRecordStart() throws IOException {
+        try {
+            Log.e("mediaRecord", "listenStart");
+            if (mediaRecorder == null) {
+                mediaRecorder = new MediaRecorder();
+                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.OGG);
+                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
+                mediaRecorder.setOutputFile("/dev/null");
+//                mediaRecorder.setMaxDuration(1500);
+//                mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+//                    @Override
+//                    public void onInfo(MediaRecorder mediaRecorder, int i, int i1) {
+//                        Log.e("media", "stoplisten");
+//                        if (i == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+//                            Log.e("liEnd", String.valueOf(System.currentTimeMillis()-len1));
+//
+//                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
+//                            Log.e("db", String.valueOf(amplitude));
+//                            mediaRecorder.stop();
+//                            mediaRecorder.release();
+//                            mediaRecorder = null;
+//                        }
+//                    }
+//                });
+                try {
+                    mediaRecorder.prepare();
+                    mediaRecorder.getMaxAmplitude();
+                }catch (java.io.IOException ioe) {
+                    android.util.Log.e("[Monkey]", "IOException: " +
+                            android.util.Log.getStackTraceString(ioe));
+
+                }catch (java.lang.SecurityException e) {
+                    android.util.Log.e("[Monkey]", "SecurityException: " +
+                            android.util.Log.getStackTraceString(e));
+                }
+                try{
+                    mediaRecorder.start();
+                    len1 = System.currentTimeMillis();
+                }catch (java.lang.SecurityException e) {
+                    android.util.Log.e("[Monkey]", "SecurityException: " +
+                            android.util.Log.getStackTraceString(e));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -1022,6 +1092,10 @@ public class EnglishAppFragment extends Fragment {
         speechRecognizer.stopListening();
         speechRecognizer.destroy();
 
+        if (mediaRecorder != null) {
+            mediaRecorder.release();
+            mediaRecorder = null;
+        }
         super.onDestroy();
     }
 
