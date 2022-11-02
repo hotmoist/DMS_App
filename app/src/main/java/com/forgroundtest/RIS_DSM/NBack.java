@@ -3,7 +3,7 @@ package com.forgroundtest.RIS_DSM;
 // dataSet for nbackTest.
 public class NBack {
     public static String[] nBack = new String[10];
-    public static String[] nBackKor = new String[10];
+    public static String[] nBackKor = new String[30];
     public NBack() {
 //        nBack[0] = "1 7 1 9 2 1 7";  // one seven five nine two one seven
 //        nBack[1] = "1 5 6 5 7 1 5"; // one five six seven seven one five
@@ -26,6 +26,25 @@ public class NBack {
         nBackKor[7] = "육삼사육오육팔";
         nBackKor[8] = "오영구영오사팔";
         nBackKor[9] = "삼구삼칠칠구이";
-
+        nBackKor[10] = "구영육삼칠팔삼";
+        nBackKor[11] = "이구일이일삼칠";
+        nBackKor[12] = "구팔육구칠오육";
+        nBackKor[13] = "팔이이오일오사";
+        nBackKor[14] = "영일팔영팔팔삼";
+        nBackKor[15] = "삼칠사영육오사";
+        nBackKor[16] = "칠이구팔사오사";
+        nBackKor[17] = "구이팔이이이일";
+        nBackKor[18] = "오사사오영육칠";
+        nBackKor[19] = "일팔사팔칠삼영";
+        nBackKor[20] = "구팔사오일이삼";
+        nBackKor[21] = "일구칠이사일구";
+        nBackKor[22] = "구영오일육일이";
+        nBackKor[23] = "사팔육삼육삼영";
+        nBackKor[24] = "영팔삼영오오구";
+        nBackKor[25] = "구팔영팔영육이";
+        nBackKor[26] = "사일사칠영구오";
+        nBackKor[27] = "육오칠사팔칠팔";
+        nBackKor[28] = "구삼이오이사오";
+        nBackKor[29] = "사구팔구사영팔";
     }
 }
