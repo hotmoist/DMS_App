@@ -217,14 +217,14 @@ public class EnglishAppFragment extends Fragment {
                     }
                     nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
 
-                    try {
-                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/"+FILE_NAME;
-                        file = new FileWriter(path,true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-                    }
-                    writer = new CSVWriter(file);
+//                    try {
+//                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/"+FILE_NAME;
+//                        file = new FileWriter(path,true);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                        Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+//                    }
+//                    writer = new CSVWriter(file);
 /**
  *                      getCurrentDateTime().toString()+","
  *                      +Value.SPEED+","
@@ -238,9 +238,9 @@ public class EnglishAppFragment extends Fragment {
                      * 저장 컬럼 제목 넣기
                      */
                     // 난중에 수정할 것. (incorrect한 index list화)
-                    writer.writeNext(new String[]{
+                    BaseModuleActivity.writer.writeNext(new String[]{
                             BaseModuleActivity.getCurrentDateTime(),
-                            "nback test 시작",});
+                            "nback test start",});
 
                     Timer timer = new Timer();
                     TimerTask timerTask = new TimerTask() {
