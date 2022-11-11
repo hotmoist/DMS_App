@@ -93,6 +93,7 @@ public class EnglishAppFragment extends Fragment {
     private boolean isSetting = false;
     int count=0;
     private char[] nBackArr;
+    private boolean isSpeaking = false;
 
 
     private com.google.android.material.button.MaterialButton appStartBtn;
@@ -169,7 +170,7 @@ public class EnglishAppFragment extends Fragment {
         appStartBtn = getActivity().findViewById(R.id.appStartingBtn);
         appStartBtn.setVisibility(View.INVISIBLE);
 
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         speechSct = rootView.findViewById(R.id.speechScript);
         firstKor = rootView.findViewById(R.id.firstKor);
         progress = rootView.findViewById(R.id.progress);
@@ -260,12 +261,17 @@ public class EnglishAppFragment extends Fragment {
                                          * csv 오답 저장
                                          */
                                         if (mediaRecorder != null) {
-                                            int amplitude = mediaRecorder.getMaxAmplitude();
-                                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
-                                            Log.e("amplitude", String.valueOf(amplitudeDb));
+                                            double db = getDb();
+                                            Log.e("amplitude", String.valueOf(db));
                                             mediaRecorder.stop();
                                             mediaRecorder.release();
                                             mediaRecorder = null;
+                                        }
+
+                                        if (speechRecognizer != null) {
+                                            speechRecognizer.stopListening();
+                                            speechRecognizer.cancel();
+                                            speechRecognizer = null;
                                         }
                                     }
                                 });
@@ -274,10 +280,24 @@ public class EnglishAppFragment extends Fragment {
                             }
 
                             if (mediaRecorder != null) {
-                                int amplitude = mediaRecorder.getMaxAmplitude();
-                                double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
-                                Log.e("amplitude", String.valueOf(amplitudeDb));
+                                double db = getDb();
+                                Log.e("amplitude", String.valueOf(db));
+                                mediaRecorder.stop();
+                                mediaRecorder.release();
+                                mediaRecorder = null;
                             }
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (speechRecognizer != null) {
+                                        speechRecognizer.stopListening();
+                                        speechRecognizer.cancel();
+                                        speechRecognizer = null;
+                                    }
+                                }
+                            });
+
                             speak(String.valueOf(nBackArr[count]));
                             count++;
                         }
@@ -328,7 +348,7 @@ public class EnglishAppFragment extends Fragment {
             }
         });
 
-        sttInitialize();
+//        sttInitialize();
 
 
 
@@ -376,13 +396,21 @@ public class EnglishAppFragment extends Fragment {
                 long time = System.currentTimeMillis();
                 Log.e("ORDER", "listen change : " + v+"  -- "+count);
 
+                double realDb = 0;
+                if (mediaRecorder != null) {
+                    realDb = getDb();
+                    Log.e("realDB", String.valueOf(realDb));
+                }
+
                 if( v>=10 || v<=-10) {
                     Log.e("ORDER", "listen change : " + v+"  -- "+count);
-
 
                     if(speechLen2-speechLen1>=0) {
                         Log.e("ORDER", "대답했습니다. : ");
                         Log.e("ORDER", "끝 - 시작 : " + (time - speechLen2) + "  -- " + count);
+
+                        isSpeaking = false;
+
                         /**
                          * 저장
                          *
@@ -446,7 +474,7 @@ public class EnglishAppFragment extends Fragment {
                         }
 
                         sw = false;
-                        speechRecognizer.stopListening();
+
 
                         Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                     }
@@ -473,9 +501,11 @@ public class EnglishAppFragment extends Fragment {
                     startListen();
                 }
 //                startListen();
-                if( System.currentTimeMillis() - start_record<=15750) {
+                if( System.currentTimeMillis() - start_record<=2000) {
                     startListen();
                 }
+
+                // 15750
             }
 
             @Override
@@ -868,7 +898,9 @@ public class EnglishAppFragment extends Fragment {
                         } else {
                             try {
                                 Log.e("media", "start");
+                                isSpeaking = true;
                                 mediaRecordStart();
+                                startListen();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -911,7 +943,6 @@ public class EnglishAppFragment extends Fragment {
 //                });
                 try {
                     mediaRecorder.prepare();
-                    mediaRecorder.getMaxAmplitude();
                 }catch (java.io.IOException ioe) {
                     android.util.Log.e("[Monkey]", "IOException: " +
                             android.util.Log.getStackTraceString(ioe));
@@ -989,6 +1020,9 @@ public class EnglishAppFragment extends Fragment {
     }
 
     private void startListen() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+        sttInitialize();
+
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -1029,6 +1063,14 @@ public class EnglishAppFragment extends Fragment {
             }
         });
         return text;
+    }
+
+    private double getDb() {
+        int amplitude = mediaRecorder.getMaxAmplitude();
+        while (amplitude == 0) {
+            amplitude = mediaRecorder.getMaxAmplitude();
+        }
+        return 20 * Math.log10((double) Math.abs(amplitude));
     }
 
 //    private void saveIdx() {
