@@ -184,8 +184,6 @@ public class EnglishAppFragment extends Fragment {
         postSpeech.setText("");
         something = rootView.findViewById(R.id.something);
         blindBtn = rootView.findViewById(R.id.blind);
-//        leftBtn = rootView.findViewById(R.id.leftbutton);
-//        rightBtn = rootView.findViewById(R.id.rightbutton);
         replayBtn = rootView.findViewById(R.id.replaybtn);
         correct = rootView.findViewById(R.id.correct);
         backBtn = rootView.findViewById(R.id.backbutton1);
@@ -207,16 +205,21 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 /**
-                 * 버튼 클릭시 타이머 태스크
+                 * controller button 클릭 후 실행되는 블럭
                  */
 
                 if (true) {
 
-                    if (nBackIdx == 10) {
-                        Toast.makeText(getContext(), "nBackTest가 더 이상 없습니다.", Toast.LENGTH_SHORT);
-                        return;
-                    }
-                    nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
+                    /**
+                     * beep sound 및 반응 속도 체크 코드 추가
+                     *
+                     */
+
+//                    if (nBackIdx == ) {
+//                        Toast.makeText(getContext(), "nBackTest가 더 이상 없습니다.", Toast.LENGTH_SHORT);
+//                        return;
+//                    }
+//                    nBackArr = NBack.nBackKor[nBackIdx++].toCharArray();
 
 //                    try {
 //                        String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/"+FILE_NAME;
@@ -243,66 +246,61 @@ public class EnglishAppFragment extends Fragment {
                             BaseModuleActivity.getCurrentDateTime(),
                             "nback test start",});
 
-                    Timer timer = new Timer();
-                    TimerTask timerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            if(count == 7) {
-                                count = 0;
-
-                                isSetting = false;
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//                                        speechRecognizer.stopListening();
-                                        //speechRecognizer.cancel();
-                                        /**
-                                         * csv 오답 저장
-                                         */
-                                        if (mediaRecorder != null) {
-                                            double db = getDb();
-                                            Log.e("amplitude", String.valueOf(db));
-                                            mediaRecorder.stop();
-                                            mediaRecorder.release();
-                                            mediaRecorder = null;
-                                        }
-
-                                        if (speechRecognizer != null) {
-                                            speechRecognizer.stopListening();
-                                            speechRecognizer.cancel();
-                                            speechRecognizer = null;
-                                        }
-                                    }
-                                });
-                                timer.cancel();
-                                return;
-                            }
-
-                            if (mediaRecorder != null) {
-                                double db = getDb();
-                                Log.e("amplitude", String.valueOf(db));
-                                mediaRecorder.stop();
-                                mediaRecorder.release();
-                                mediaRecorder = null;
-                            }
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (speechRecognizer != null) {
-                                        speechRecognizer.stopListening();
-                                        speechRecognizer.cancel();
-                                        speechRecognizer = null;
-                                    }
-                                }
-                            });
-
-                            speak(String.valueOf(nBackArr[count]));
-                            count++;
-                        }
-                    };
-                    start_record = System.currentTimeMillis();
+//                    Timer timer = new Timer();
+//                    TimerTask timerTask = new TimerTask() {
+//                        @Override
+//                        public void run() {
+////                            if(count == 7) {
+////                                count = 0;
+////
+////                                isSetting = false;
+////                                getActivity().runOnUiThread(new Runnable() {
+////                                    @Override
+////                                    public void run() {
+////                                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+////                                         speechRecognizer.stopListening();
+////                                        //speechRecognizer.cancel();
+////                                        /**
+////                                         * csv 오답 저장
+////                                         */
+////                                        if (mediaRecorder != null) {
+////                                            double db = getDb();
+////                                            Log.e("amplitude", String.valueOf(db));
+////                                            mediaRecorder.stop();
+////                                            mediaRecorder.release();
+////                                            mediaRecorder = null;
+////                                        }
+////
+////
+////                                    }
+////                                });
+////                                timer.cancel();
+////                                return;
+//
+//
+////                            if (mediaRecorder != null) {
+////                                mediaRecorder.stop();
+////                                mediaRecorder.release();
+////                                mediaRecorder = null;
+////                            }
+//
+////                            getActivity().runOnUiThread(new Runnable() {
+////                                @Override
+////                                public void run() {
+////                                    if (speechRecognizer != null) {
+////                                        speechRecognizer.stopListening();
+////                                        speechRecognizer.cancel();
+////                                        speechRecognizer = null;
+////                                    }
+////                                }
+////                            });
+//
+////                            speak(String.valueOf(nBackArr[count]));
+//
+//                            count++;
+//                        }
+//                    };
+//                    start_record = System.currentTimeMillis();
 //                    getActivity().runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
@@ -311,28 +309,16 @@ public class EnglishAppFragment extends Fragment {
 //                            startListen();
 //                        }
 //                    });
-                    timer.schedule(timerTask,0,2250);
+
                 } else {
+                    // 영어 문장 test일때만 실행 (반응속도 test이기 때문에 조건문 항상 true, 나중에 수정할 것)
                     turnPage();
                 }
             }
         });
 
 
-//        rightBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                turnPage();
-//            }
-//        });
-
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // exit fragment
-            }
-        });
-
+        // tts 초기화
         textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -348,10 +334,7 @@ public class EnglishAppFragment extends Fragment {
             }
         });
 
-//        sttInitialize();
-
-
-
+        // check permission to record
         if (getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE)) {
             requestRecordAudioPermission();
         }
@@ -375,324 +358,192 @@ public class EnglishAppFragment extends Fragment {
     }
 
     // Initialize The stt service.
+    // 나중에 영어학습 어플 구축할 때 필요함
     boolean sw = true;
-    private void sttInitialize() {
-        speechRecognizer.setRecognitionListener(new RecognitionListener() {
-            @Override
-            public void onReadyForSpeech(Bundle bundle) {
-                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-            }
-
-            @Override
-            public void onBeginningOfSpeech() {
-                delay2 = System.currentTimeMillis();
-                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-
-                Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
-            }
-
-            @Override
-            public void onRmsChanged(float v) {
-                long time = System.currentTimeMillis();
-                Log.e("ORDER", "listen change : " + v+"  -- "+count);
-
-                double realDb = 0;
-                if (mediaRecorder != null) {
-                    realDb = getDb();
-                    Log.e("realDB", String.valueOf(realDb));
-                }
-
-                if( v>=10 || v<=-10) {
-                    Log.e("ORDER", "listen change : " + v+"  -- "+count);
-
-                    if(speechLen2-speechLen1>=0) {
-                        Log.e("ORDER", "대답했습니다. : ");
-                        Log.e("ORDER", "끝 - 시작 : " + (time - speechLen2) + "  -- " + count);
-
-                        isSpeaking = false;
-
-                        /**
-                         * 저장
-                         *
-                         */
-
-                        try {
-                            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
-                            file = new FileWriter(path,true);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-                        }
-                        writer = new CSVWriter(file);
-/**
- *                      getCurrentDateTime().toString()+","
- *                      +Value.SPEED+","
- *                      +Value.ACC+","
- *                      +Value.GYRO_X+","
- *                      +Value.GYRO_Y+","
- *                      +Value.GYRO_Z+","
- *                      +Value.LIGHT
- */
-                        /**
-                         * 저장 컬럼 제목 넣기
-                         */
-                        // 난중에 수정할 것. (incorrect한 index list화)
-                        writer.writeNext(new String[]{
-                                "currentTime",
-                                "index",
-                                "correct",
-                                "tts start to stt end",
-                                "tts end to stt end",});
-                        /**
-                         * 저장 컬럼별 데이터
-                         */
-                        if ( count > 2 && nBackArr[count-3] == nBackArr[count-1]) {
-                            writer.writeNext(new String[]{
-                                            BaseModuleActivity.getCurrentDateTime().toString(),
-                                            count + "",
-                                            "true",
-                                            (time - speechLen1)+"",
-                                            (time - speechLen2)+"",
-                                    }
-                            );
-                        }else{
-                            writer.writeNext(new String[]{
-                                            BaseModuleActivity.getCurrentDateTime().toString(),
-                                            count + "",
-                                            "false",
-                                            (time - speechLen1)+"",
-                                            (time - speechLen2)+"",
-                                    }
-                            );
-                        }
-
-                        try {
-                            writer.close();
-                        } catch (IOException e) {
-                            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
-                            e.printStackTrace();
-                        }
-
-                        sw = false;
-
-
-                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-                    }
-                }
-            }
-
-            @Override
-            public void onBufferReceived(byte[] bytes) {
-                Log.e("ORDER", "listen buffer : "+BaseModuleActivity.getCurrentDateTime());
-
-
-            }
-
-            @Override
-            public void onEndOfSpeech() {
-                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-            }
-
-            @Override
-            public void onError(int i) {
-                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
-
-                if (isEng) {
-                    startListen();
-                }
-//                startListen();
-                if( System.currentTimeMillis() - start_record<=2000) {
-                    startListen();
-                }
-
-                // 15750
-            }
-
-            @Override
-            public void onResults(Bundle bundle) {
-                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-
-                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
-
-                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-
+//    private void sttInitialize() {
+//        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+//            @Override
+//            public void onReadyForSpeech(Bundle bundle) {
+//                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//            }
 //
-                if (str.get(0) != null) {
-                    if (!isnBack) {
-                        postSpeech.setText(str.get(0));
-                        answerCheck();
-                    } else {
-                        postSpeech.setText(str.get(0));
-                    }
-                }
-//                if(!str.get(0).equals("네")) {
+//            @Override
+//            public void onBeginningOfSpeech() {
+//                delay2 = System.currentTimeMillis();
+//                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//
+//                Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
+//            }
+//
+//            @Override
+//            public void onRmsChanged(float v) {
+//                long time = System.currentTimeMillis();
+//                Log.e("ORDER", "listen change : " + v+"  -- "+count);
+//
+////                double realDb = 0;
+////                if (mediaRecorder != null) {
+////                    realDb = getDb();
+////                    Log.e("realDB", String.valueOf(realDb));
+////                }
+//
+//                if( v>=10 || v<=-10) {
+//                    Log.e("ORDER", "listen change : " + v+"  -- "+count);
+//
+//                    if(speechLen2-speechLen1>=0) {
+//                        Log.e("ORDER", "대답했습니다. : ");
+//                        Log.e("ORDER", "끝 - 시작 : " + (time - speechLen2) + "  -- " + count);
+//
+//                        isSpeaking = false;
+//
+//                        /**
+//                         * 저장
+//                         *
+//                         */
+//
+//                        try {
+//                            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
+//                            file = new FileWriter(path,true);
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+//                        }
+//                        writer = new CSVWriter(file);
+///**
+// *                      getCurrentDateTime().toString()+","
+// *                      +Value.SPEED+","
+// *                      +Value.ACC+","
+// *                      +Value.GYRO_X+","
+// *                      +Value.GYRO_Y+","
+// *                      +Value.GYRO_Z+","
+// *                      +Value.LIGHT
+// */
+//                        /**
+//                         * 저장 컬럼 제목 넣기
+//                         */
+//                        // 난중에 수정할 것. (incorrect한 index list화)
+//                        writer.writeNext(new String[]{
+//                                "currentTime",
+//                                "index",
+//                                "correct",
+//                                "tts start to stt end",
+//                                "tts end to stt end",});
+//                        /**
+//                         * 저장 컬럼별 데이터
+//                         */
+//                        if ( count > 2 && nBackArr[count-3] == nBackArr[count-1]) {
+//                            writer.writeNext(new String[]{
+//                                            BaseModuleActivity.getCurrentDateTime().toString(),
+//                                            count + "",
+//                                            "true",
+//                                            (time - speechLen1)+"",
+//                                            (time - speechLen2)+"",
+//                                    }
+//                            );
+//                        }else{
+//                            writer.writeNext(new String[]{
+//                                            BaseModuleActivity.getCurrentDateTime().toString(),
+//                                            count + "",
+//                                            "false",
+//                                            (time - speechLen1)+"",
+//                                            (time - speechLen2)+"",
+//                                    }
+//                            );
+//                        }
+//
+//                        try {
+//                            writer.close();
+//                        } catch (IOException e) {
+//                            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+//                            e.printStackTrace();
+//                        }
+//
+//                        sw = false;
+//
+//
+//                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onBufferReceived(byte[] bytes) {
+//                Log.e("ORDER", "listen buffer : "+BaseModuleActivity.getCurrentDateTime());
+////                double realDb = 0;
+////                if (mediaRecorder != null) {
+////                    realDb = getDb();
+////                    Log.e("realDB", String.valueOf(realDb));
+////                }
+//
+//            }
+//
+//            @Override
+//            public void onEndOfSpeech() {
+//                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//
+////                double realDb = 0;
+////                if (mediaRecorder != null) {
+////                    realDb = getDb();
+////                    Log.e("realDB", String.valueOf(realDb));
+////                }
+//            }
+//
+//            @Override
+//            public void onError(int i) {
+//                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
+//
+//                if (isEng) {
 //                    startListen();
 //                }
-                speechRecognizer.stopListening();
-            }
-
-            @Override
-            public void onPartialResults(Bundle bundle) {
-//                ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-//                String text = "";
-//                for (String result : matches)
-//                    text += result;
-//
-//                postSpeech.setText(text);
-            }
-
-            @Override
-            public void onEvent(int i, Bundle bundle) {
-
-            }
-        });
-    }
-
-    // Compare answer to nBack Input
-    private void nBackAnswerCheck(String ans, String voice) {
-        // n백 정확도 측정 알고리즘 작성
-        // 결과 firebase에 저장.
-        if(voice.length()>0 && cnt > 1 &&
-                (NBack.nBackKor[engIdx].toCharArray()[cnt-2]==NBack.nBackKor[engIdx].toCharArray()[cnt])){
-            //정답
-            //반응시간, 정답유무, 시간
-            try {
-                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
-                file = new FileWriter(path,true);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-            }
-            writer = new CSVWriter(file);
-/**
- *                      getCurrentDateTime().toString()+","
- *                      +Value.SPEED+","
- *                      +Value.ACC+","
- *                      +Value.GYRO_X+","
- *                      +Value.GYRO_Y+","
- *                      +Value.GYRO_Z+","
- *                      +Value.LIGHT
- */
-            /**
-             * 저장 컬럼 제목 넣기
-             */
-            // 난중에 수정할 것. (incorrect한 index list화)
-            writer.writeNext(new String[]{
-                    "currentTime",
-                    "index",
-                    "correct",
-                    "tts start to stt end",
-                    "tts end to stt end",});
-            /**
-             * 저장 컬럼별 데이터
-             */
-            writer.writeNext(new String[]{
-                    BaseModuleActivity.getCurrentDateTime().toString(),
-                    cnt+"",
-                    "true",
-                    RESULT_START.toString(),
-                    RESULT_END.toString(),
-                }
-            );
-            try {
-                writer.close();
-            } catch (IOException e) {
-                Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-
-        }else {
-
-            try {
-                String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
-                file = new FileWriter(path,true);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-            }
-            writer = new CSVWriter(file);
-/**
- *                      getCurrentDateTime().toString()+","
- *                      +Value.SPEED+","
- *                      +Value.ACC+","
- *                      +Value.GYRO_X+","
- *                      +Value.GYRO_Y+","
- *                      +Value.GYRO_Z+","
- *                      +Value.LIGHT
- */
-            /**
-             * 저장 컬럼 제목 넣기
-             */
-            // 난중에 수정할 것. (incorrect한 index list화)
-            writer.writeNext(new String[]{
-                    "currentTime",
-                    "index",
-                    "correct",
-                    "tts start to stt end",
-                    "tts end to stt end",});
-            /**
-             * 저장 컬럼별 데이터
-             */
-            writer.writeNext(new String[]{
-                            BaseModuleActivity.getCurrentDateTime().toString(),
-                            cnt+"",
-                            "false",
-                            RESULT_START.toString(),
-                            RESULT_END.toString(),
-                    }
-            );
-            try {
-                writer.close();
-            } catch (IOException e) {
-                Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-
-        }
-
-//        voice = voice.replaceAll(match, "");
-//        String[] nBtest = speechSct.getText().toString().split(" ");
-//        Log.e("stt", voice);
-//        String[] string = voice.split("");
-//
-//        int cnt = 0;
-//        boolean isCorrect = true;
-//
-//        if (string.length != nBtest.length) {
-//            int sht = Math.min(string.length, nBtest.length);
-//            for (int wrong = 0; wrong < sht; wrong++) {
-//                if (!string[wrong].equals(nBtest[wrong])) {
-//                    cnt = wrong+1;
-//                    isCorrect = false;
-//                    break;
+////                startListen();
+//                if( System.currentTimeMillis() - start_record<=2000) {
+//                    startListen();
 //                }
+//
+//                // 15750
 //            }
-//            if (isCorrect) {
-//                cnt = sht;
-//            }
-//            correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
-//        } else {
-//            for (int wrong = 0; wrong < string.length; wrong++) {
-//                if (!string[wrong].equals(nBtest[wrong])) {
-//                    cnt = wrong+1;
-//                    isCorrect = false;
-//                    break;
+//
+//            @Override
+//            public void onResults(Bundle bundle) {
+//                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+//
+//                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
+//
+//                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+//
+////
+//                if (str.get(0) != null) {
+//                    if (!isnBack) {
+//                        postSpeech.setText(str.get(0));
+//                        answerCheck();
+//                    } else {
+//                        postSpeech.setText(str.get(0));
+//                    }
 //                }
+////                if(!str.get(0).equals("네")) {
+////                    startListen();
+////                }
+//                speechRecognizer.stopListening();
 //            }
 //
-//            if (isCorrect) {
-//                correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
-//            } else {
-//                correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
+//            @Override
+//            public void onPartialResults(Bundle bundle) {
+////                ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+////                String text = "";
+////                for (String result : matches)
+////                    text += result;
+////
+////                postSpeech.setText(text);
 //            }
-//        }
 //
-//        writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
-//        Log.e("nBack", "good");
-////        turnPage();
-    }
+//            @Override
+//            public void onEvent(int i, Bundle bundle) {
+//
+//            }
+//        });
+//    }
 
     // Compare answer to Input
+    // 영어 문장 정확도 체크
     private void answerCheck() {
         String voice = speechSct.getText().toString().toLowerCase();
         String userInput = postSpeech.getText().toString().toLowerCase();
@@ -735,70 +586,9 @@ public class EnglishAppFragment extends Fragment {
 //        }, 1500);
     }
 
-    private void writeNewBackTest(int end, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
-        // firebase에 저장.
-        isnBack = false;
-        Case testCa = new Case(getTime(), end, isCorrect, delayToSpeak, delayDuringSpeak);
-
-        mDatabase.child("study").child("test").child("NBackTest").child(String.valueOf(nBackIdx)).setValue(testCa).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Log.e("main", "저장성공");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("main", "저장실패");
-                    }
-                });
-        Log.d("FILE_NAME",FILE_NAME);
-
-        try {
-            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
-            file = new FileWriter(path,true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-        }
-        writer = new CSVWriter(file);
-/**
- *                      getCurrentDateTime().toString()+","
- *                      +Value.SPEED+","
- *                      +Value.ACC+","
- *                      +Value.GYRO_X+","
- *                      +Value.GYRO_Y+","
- *                      +Value.GYRO_Z+","
- *                      +Value.LIGHT
- */
-        /**
-         * 저장 컬럼 제목 넣기
-         */
-        // 난중에 수정할 것. (incorrect한 index list화)
-        writer.writeNext(new String[]{
-                "currentTime",
-                "starting Point of incorrect",
-                "correct",
-                "start time",
-                "speaking time",});
-        /**
-         * 저장 컬럼별 데이터
-         */
-        writer.writeNext(new String[]{
-                BaseModuleActivity.getCurrentDateTime().toString(),
-                end+"",
-                isCorrect+"",
-                delayToSpeak+"",
-                delayDuringSpeak+"",});
-        try {
-            writer.close();
-        } catch (IOException e) {
-            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
 
 
+    // 영어 문장 정확도 체크 후 base에 write
     private void writeNewCase(int idx, int wordCnt, boolean isCorrect, int delayToSpeak, int delayDuringSpeak) {
         isEng = false;
         Case ca = new Case(getTime(), wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
@@ -894,19 +684,11 @@ public class EnglishAppFragment extends Fragment {
                     public void run() {
                         if (isEng) {
                             delay1 = System.currentTimeMillis();
-                            startListen();
-                        } else {
-                            try {
-                                Log.e("media", "start");
-                                isSpeaking = true;
-                                mediaRecordStart();
-                                startListen();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+//                            startListen();
                         }
                     }
                 });
+
             }
 
             @Override
@@ -916,55 +698,56 @@ public class EnglishAppFragment extends Fragment {
         });
     }
 
-    private void mediaRecordStart() throws IOException {
-        try {
-            Log.e("mediaRecord", "listenStart");
-            if (mediaRecorder == null) {
-                mediaRecorder = new MediaRecorder();
-                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.OGG);
-                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-                mediaRecorder.setOutputFile("/dev/null");
-//                mediaRecorder.setMaxDuration(1500);
-//                mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
-//                    @Override
-//                    public void onInfo(MediaRecorder mediaRecorder, int i, int i1) {
-//                        Log.e("media", "stoplisten");
-//                        if (i == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-//                            Log.e("liEnd", String.valueOf(System.currentTimeMillis()-len1));
+//    private void mediaRecordStart() throws IOException {
+//        try {
+//            Log.e("mediaRecord", "listenStart");
+//            if (mediaRecorder == null) {
+//                mediaRecorder = new MediaRecorder();
+//                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+//                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.OGG);
+//                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
+//                mediaRecorder.setOutputFile("/dev/null");
+////                mediaRecorder.setMaxDuration(1500);
+////                mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+////                    @Override
+////                    public void onInfo(MediaRecorder mediaRecorder, int i, int i1) {
+////                        Log.e("media", "stoplisten");
+////                        if (i == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+////                            Log.e("liEnd", String.valueOf(System.currentTimeMillis()-len1));
+////
+////                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
+////                            Log.e("db", String.valueOf(amplitude));
+////                            mediaRecorder.stop();
+////                            mediaRecorder.release();
+////                            mediaRecorder = null;
+////                        }
+////                    }
+////                });
+//                try {
+//                    mediaRecorder.prepare();
+//                }catch (java.io.IOException ioe) {
+//                    android.util.Log.e("[Monkey]", "IOException: " +
+//                            android.util.Log.getStackTraceString(ioe));
 //
-//                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
-//                            Log.e("db", String.valueOf(amplitude));
-//                            mediaRecorder.stop();
-//                            mediaRecorder.release();
-//                            mediaRecorder = null;
-//                        }
-//                    }
-//                });
-                try {
-                    mediaRecorder.prepare();
-                }catch (java.io.IOException ioe) {
-                    android.util.Log.e("[Monkey]", "IOException: " +
-                            android.util.Log.getStackTraceString(ioe));
+//                }catch (java.lang.SecurityException e) {
+//                    android.util.Log.e("[Monkey]", "SecurityException: " +
+//                            android.util.Log.getStackTraceString(e));
+//                }
+//                try{
+//                    mediaRecorder.start();
+//                    len1 = System.currentTimeMillis();
+//                }catch (java.lang.SecurityException e) {
+//                    android.util.Log.e("[Monkey]", "SecurityException: " +
+//                            android.util.Log.getStackTraceString(e));
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-                }catch (java.lang.SecurityException e) {
-                    android.util.Log.e("[Monkey]", "SecurityException: " +
-                            android.util.Log.getStackTraceString(e));
-                }
-                try{
-                    mediaRecorder.start();
-                    len1 = System.currentTimeMillis();
-                }catch (java.lang.SecurityException e) {
-                    android.util.Log.e("[Monkey]", "SecurityException: " +
-                            android.util.Log.getStackTraceString(e));
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
+    // 영어 문장과 반응 속도 체크 페이지 넘기기.
     @SuppressLint("SetTextI18n")
     public void turnPage() {
         if ((engIdx+nBackIdx) == 13) {
@@ -1000,42 +783,25 @@ public class EnglishAppFragment extends Fragment {
 //        }
     }
 
-    public void turnNBack(int engIndex) {
-        if (nBackIdx == NBack.nBack.length) {
-            Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
-            isnBack = false;
-            return;
-        }
-//        speechSct.setText(NBack.nBack[nBackIdx]);
-//        firstKor.setText("");
-        String ans = speak(String.valueOf(NBack.nBackKor[nBackIdx].toCharArray()[engIndex]));
-        ANS = ans;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("START_LISTEN", "듣기시작");
-                startListen();
-            }
-        });
-    }
+// 나중에 stt가 필요함. (지우기 말 것)
+//    private void startListen() {
+//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+//        sttInitialize();
+//
+//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        if (isnBack) {
+//            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
+//        } else {
+//            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+//        }
+//        intent.putExtra("android.speech.extra.DICTATION_MODE", true);
+////        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS","");
+//        speechRecognizer.startListening(intent);
+//    }
 
-    private void startListen() {
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-        sttInitialize();
-
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        if (isnBack) {
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
-        } else {
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
-        }
-        intent.putExtra("android.speech.extra.DICTATION_MODE", true);
-//        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS","");
-        speechRecognizer.startListening(intent);
-    }
-
+    // tts speak함수.
     private String speak(String text) {
         if (textToSpeech != null) {
             textToSpeech.stop();
@@ -1065,6 +831,7 @@ public class EnglishAppFragment extends Fragment {
         return text;
     }
 
+    // mediaRecorder decibel check.
     private double getDb() {
         int amplitude = mediaRecorder.getMaxAmplitude();
         while (amplitude == 0) {
@@ -1072,30 +839,6 @@ public class EnglishAppFragment extends Fragment {
         }
         return 20 * Math.log10((double) Math.abs(amplitude));
     }
-
-//    private void saveIdx() {
-//        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = pref.edit();
-//        if (idx == eng.length-1) {
-//            editor.putInt("idx", 0);
-//            editor.commit();
-//        } else {
-//            editor.putInt("idx", idx);
-//            editor.commit();
-//        }
-//    }
-
-//    private void loadIdx() {
-//        SharedPreferences pref = getActivity().getSharedPreferences("index", Activity.MODE_PRIVATE);
-//        int current = pref.getInt("idx", 0);
-//        Log.e("main", String.valueOf(current));
-//        currentScreen(current);
-//    }
-//
-//    private void currentScreen(int current) {
-//        idx = current-1;
-//        turnPage();
-//    }
 
 
     @Override
@@ -1131,8 +874,10 @@ public class EnglishAppFragment extends Fragment {
             textToSpeech.shutdown();
         }
 
-        speechRecognizer.stopListening();
-        speechRecognizer.destroy();
+        if (speechRecognizer != null) {
+            speechRecognizer.stopListening();
+            speechRecognizer.destroy();
+        }
 
         if (mediaRecorder != null) {
             mediaRecorder.release();
