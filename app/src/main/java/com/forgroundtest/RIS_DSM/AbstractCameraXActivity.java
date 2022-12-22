@@ -26,6 +26,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 /**
  * cameraX 설정 및 추론 모델 설정을 위한 Activity, 별개 레이아웃 없음
@@ -118,7 +119,7 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
                     }
                 });
 
-        CameraX.bindToLifecycle(this, preview, imageAnalysis);
+        CameraX.bindToLifecycle((LifecycleOwner) this, preview, imageAnalysis);
     }
 
     private void updateTransform(){
