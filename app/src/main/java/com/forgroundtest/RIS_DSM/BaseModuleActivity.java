@@ -6,6 +6,7 @@ import static com.forgroundtest.RIS_DSM.Value.FILE_NAME;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -48,6 +49,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,7 +58,7 @@ import java.util.TimerTask;
  * 추론 모델을 위한 background 쓰레드 적용 Activity
  */
 
-public class BaseModuleActivity extends AppCompatActivity {
+public class BaseModuleActivity extends BlunoLibrary {
 
     protected HandlerThread mBackgroundThread;
     protected Handler mBackgroundHandler;
@@ -91,6 +93,14 @@ public class BaseModuleActivity extends AppCompatActivity {
     static CSVWriter writer;
 
     /**
+     * scan 시, 받은 scan 관련 text 저장
+     */
+    Button scanBtn;
+    public String scanStatus = "none"; // ble connection의 상태를 저장하는 String 값
+    static StringBuilder recievedSB = new StringBuilder();
+
+
+    /**
      * firebase 변수
      */
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -100,11 +110,49 @@ public class BaseModuleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mUIHandler = new Handler(getMainLooper());
 
-
+        checkPermissions();
         resistSensor();
         resistGyroSensor();
         resistSTT();
         resistLocation();
+    }
+
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+
+                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
+                builder.setMessage("어플리케이션이 블루투스를 감지 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
+                builder.setPositiveButton(android.R.string.ok, null);
+
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
+                    }
+                });
+                builder.show();
+            }
+
+            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+
+                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
+                builder.setMessage("어플리케이션이 블루투스를 연결 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
+                builder.setPositiveButton(android.R.string.ok, null);
+
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 3);
+                    }
+                });
+                builder.show();
+            }
+        }
     }
 
     @Override
@@ -127,23 +175,24 @@ public class BaseModuleActivity extends AppCompatActivity {
 
     }
 
-    protected void startBackgroundThread(){
+    protected void startBackgroundThread() {
         // ML 모델 구옫을 위한 별개 쓰래드 실행
         mBackgroundThread = new HandlerThread("ModuleActivity");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
-    protected void stopBackgroundThread(){
+    protected void stopBackgroundThread() {
         mBackgroundThread.quitSafely();
-        try{
+        try {
             mBackgroundThread.join();
             mBackgroundThread = null;
             mBackgroundHandler = null;
-        } catch (InterruptedException e){
+        } catch (InterruptedException e) {
             Log.e("DMS_EDU", "Error on stopping background thread", e);
         }
     }
+
     @UiThread
     protected void showErrorDialog(View.OnClickListener clickListener) {
         final View view = InfoViewFactory.newErrorDialogView(this);
@@ -158,7 +207,7 @@ public class BaseModuleActivity extends AppCompatActivity {
     }
 
 
-    public void resistSTT(){
+    public void resistSTT() {
         /**
          * STT 등록 실행
          */
@@ -178,7 +227,7 @@ public class BaseModuleActivity extends AppCompatActivity {
 //        });
     }
 
-    public void resistLocation(){
+    public void resistLocation() {
         /**
          * 위치정보 등록
          * 위치의 리스너 매니저, 권한 등록
@@ -200,20 +249,20 @@ public class BaseModuleActivity extends AppCompatActivity {
         long passiveInterval = LocationRequest.PASSIVE_INTERVAL;
 //        Toast.makeText(this,passiveInterval+"",Toast.LENGTH_SHORT).show();
     }
-    public void resistSensor(){
+
+    public void resistSensor() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     }
 
-    public void resistGyroSensor(){
+    public void resistGyroSensor() {
         gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
 
 
         gyroListener = new GyroListener();
     }
 
-    public void startCsvButton(){
-        if(START_CSV=!START_CSV) {
+    public void startCsvButton() {
+        if (START_CSV = !START_CSV) {
 
 
             try {
@@ -226,13 +275,14 @@ public class BaseModuleActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         writer.writeNext(new String[]{
-                                getCurrentDateTime().toString(),
-                                +Value.SPEED+"",
-                                +Value.ACC+"",
-                                +Value.GYRO_X+"",
-                                +Value.GYRO_Y+"",
-                                +Value.GYRO_Z+"",
-                                Value.RESULT}
+                                        getCurrentDateTime().toString(),
+                                        +Value.SPEED + "",
+                                        +Value.ACC + "",
+                                        +Value.GYRO_X + "",
+                                        +Value.GYRO_Y + "",
+                                        +Value.GYRO_Z + "",
+                                        Value.RESULT
+                                }
                         );
                         /**
                          * firebase 실시간 모니터링 코드 추가
@@ -243,8 +293,7 @@ public class BaseModuleActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if (!task.isSuccessful()) {
                                     Log.e("firebase", "Error getting data", task.getException());
-                                }
-                                else {
+                                } else {
                                     String value = String.valueOf(task.getResult().getValue());
                                     if (value.equals("true")) {
                                         mDatabase.child("study").child("isEnglishTest").setValue(false);
@@ -260,8 +309,7 @@ public class BaseModuleActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if (!task.isSuccessful()) {
                                     Log.e("firebase", "Error getting data", task.getException());
-                                }
-                                else {
+                                } else {
                                     String value = String.valueOf(task.getResult().getValue());
                                     if (value.equals("true")) {
                                         mDatabase.child("study").child("isNBackTest").setValue(false);
@@ -273,8 +321,8 @@ public class BaseModuleActivity extends AppCompatActivity {
                         });
                     }
                 };
-                Toast.makeText(this,"저장을 시작합니다.",Toast.LENGTH_SHORT).show();
-                timer.schedule(timerTask,0,1000);
+                Toast.makeText(this, "저장을 시작합니다.", Toast.LENGTH_SHORT).show();
+                timer.schedule(timerTask, 0, 1000);
 //              writeDataToCsv(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/sample.csv");
             } catch (IOException e) {
                 Toast.makeText(this.getApplicationContext(), "생성 실패", Toast.LENGTH_SHORT).show();
@@ -285,7 +333,7 @@ public class BaseModuleActivity extends AppCompatActivity {
                 timerTask.cancel();
                 timer.cancel();
                 timer.purge();
-                Toast.makeText(this,"저장을 종료합니다.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "저장을 종료합니다.", Toast.LENGTH_SHORT).show();
                 stopDataToCsv();
             } catch (IOException e) {
                 Toast.makeText(this.getApplicationContext(), "정지 실패", Toast.LENGTH_SHORT).show();
@@ -293,8 +341,9 @@ public class BaseModuleActivity extends AppCompatActivity {
             }
         }
     }
+
     public void startDataToCsv(String path) throws IOException {
-        file = new FileWriter(path,true);
+        file = new FileWriter(path, true);
         writer = new CSVWriter(file);
 /**
  *                      getCurrentDateTime().toString()+","
@@ -310,18 +359,21 @@ public class BaseModuleActivity extends AppCompatActivity {
                 "index",
                 "correct",
                 "start time",
-                "speaking time",});
+                "speaking time",
+                "response time"});
         writer.writeNext(new String[]{
                 getCurrentDateTime().toString(),
                 Value.END,
-                Value.isCorrect+"",
-                Value.delayToSpeak+"",
-                Value.delayDuringSpeak+"",});
-        String[] category = {"TIME", "SPEED", "ACC","GYRO_X","GYRO_Y","GYRO_Z","RESULT"};
+                Value.isCorrect + "",
+                Value.delayToSpeak + "",
+                Value.delayDuringSpeak + "",
+        });
+        String[] category = {"TIME", "SPEED", "ACC", "GYRO_X", "GYRO_Y", "GYRO_Z", "RESULT", "RESPONSE"};
         writer.writeNext(category);
 
     }
-    public void stopDataToCsv() throws IOException{
+
+    public void stopDataToCsv() throws IOException {
         writer.close();
     }
 
@@ -332,5 +384,35 @@ public class BaseModuleActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat(pattern,
                 currentLocale);
         return formatter.format(today);
+    }
+
+    @Override
+    public void onConectionStateChange(connectionStateEnum theConnectionState) {
+        switch (theConnectionState) {                                            //Four connection state
+            case isConnected:
+                scanBtn.setText("Connected");
+                break;
+            case isConnecting:
+                scanBtn.setText("Connecting");
+                break;
+            case isToScan:
+                scanBtn.setText("Scan");
+                break;
+            case isScanning:
+                scanBtn.setText("Scanning");
+                break;
+            case isDisconnecting:
+                scanBtn.setText("isDisconnecting");
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void onSerialReceived(String rString) {
+        // 아두이노에서 입력받은 데이터 넣음
+        recievedSB.append(rString);
     }
 }

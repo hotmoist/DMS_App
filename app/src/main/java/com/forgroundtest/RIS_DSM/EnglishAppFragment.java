@@ -70,7 +70,7 @@ public class EnglishAppFragment extends Fragment {
     /**
      * 파일 생성 변수
      */
-    FileWriter file= null;
+    FileWriter file = null;
     CSVWriter writer;
     private String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
 
@@ -91,7 +91,7 @@ public class EnglishAppFragment extends Fragment {
     private int cnt = 0;
     long start_record = 0l;
     private boolean isSetting = false;
-    int count=0;
+    int count = 0;
     private char[] nBackArr;
     private boolean isSpeaking = false;
 
@@ -179,7 +179,7 @@ public class EnglishAppFragment extends Fragment {
         speaking = rootView.findViewById(R.id.speaking);
         speechSct.setText(eng[engIdx]);
         firstKor.setText(kor[engIdx]);
-        progress.setText(((engIdx+nBackIdx)+1) + "/13");
+        progress.setText(((engIdx + nBackIdx) + 1) + "/13");
         follow.setText("");
         postSpeech.setText("");
         something = rootView.findViewById(R.id.something);
@@ -207,13 +207,14 @@ public class EnglishAppFragment extends Fragment {
                 /**
                  * controller button 클릭 후 실행되는 블럭
                  */
-
-                if (true) {
+                if (isnBack) {
 
                     /**
-                     * beep sound 및 반응 속도 체크 코드 추가
+                     * TODO: beep sound 및 반응 속도 체크 코드 추가
                      *
                      */
+
+                    ((BaseModuleActivity)getActivity()).serialSend("1");
 
 //                    if (nBackIdx == ) {
 //                        Toast.makeText(getContext(), "nBackTest가 더 이상 없습니다.", Toast.LENGTH_SHORT);
@@ -241,7 +242,7 @@ public class EnglishAppFragment extends Fragment {
                     /**
                      * 저장 컬럼 제목 넣기
                      */
-                    // 난중에 수정할 것. (incorrect한 index list화)
+                    //  FIXME:  난중에 수정할 것. (incorrect한 index list화)
                     BaseModuleActivity.writer.writeNext(new String[]{
                             BaseModuleActivity.getCurrentDateTime(),
                             "nback test start",});
@@ -311,7 +312,7 @@ public class EnglishAppFragment extends Fragment {
 //                    });
 
                 } else {
-                    // 영어 문장 test일때만 실행 (반응속도 test이기 때문에 조건문 항상 true, 나중에 수정할 것)
+                    // TODO : 영어 문장 test일때만 실행 (반응속도 test이기 때문에 조건문 항상 true, 나중에 수정할 것)
                     turnPage();
                 }
             }
@@ -324,11 +325,11 @@ public class EnglishAppFragment extends Fragment {
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
                     int result = textToSpeech.setLanguage(Locale.CANADA);
-                    if(result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA){
+                    if (result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA) {
                         Log.e("TTS", "This Language is not supported");
                     }
                     ttsUtterInitialize();
-                } else{
+                } else {
                     Log.e("TTS", "Initialization Failed!");
                 }
             }
@@ -564,8 +565,7 @@ public class EnglishAppFragment extends Fragment {
             if (cnt == 0) {
                 isCorrect = true;
                 correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
-            }
-            else {
+            } else {
                 correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
             }
         }
@@ -575,7 +575,7 @@ public class EnglishAppFragment extends Fragment {
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 
         // write the firebase realtimeDB about 4 diffrent case
-        writeNewCase(engIdx, cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
+        writeNewCase(engIdx, cnt, isCorrect, (int) (delay2 - delay1), (int) (speechLen2 - speechLen1));
 
 //        Handler handler = new Handler();
 //        handler.postDelayed(new Runnable() {
@@ -585,7 +585,6 @@ public class EnglishAppFragment extends Fragment {
 //            }
 //        }, 1500);
     }
-
 
 
     // 영어 문장 정확도 체크 후 base에 write
@@ -607,11 +606,11 @@ public class EnglishAppFragment extends Fragment {
                 });
 
         try {
-            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_string"+FILE_NAME;
-            file = new FileWriter(path,true);
+            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) + "/nback_test_string" + FILE_NAME;
+            file = new FileWriter(path, true);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "파일이 생성되지않았습니다.", Toast.LENGTH_LONG).show();
         }
         writer = new CSVWriter(file);
 /**
@@ -638,14 +637,14 @@ public class EnglishAppFragment extends Fragment {
          */
         writer.writeNext(new String[]{
                 BaseModuleActivity.getCurrentDateTime().toString(),
-                wordCnt+"",
-                isCorrect+"",
-                delayToSpeak+"",
-                delayDuringSpeak+"",});
+                wordCnt + "",
+                isCorrect + "",
+                delayToSpeak + "",
+                delayDuringSpeak + "",});
         try {
             writer.close();
         } catch (IOException e) {
-            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "파일이 종료되지않았습니다.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -656,7 +655,7 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onStart(String s) {
                 speechLen1 = System.currentTimeMillis();
-                Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+                Log.e("ORDER", "Speak run : " + BaseModuleActivity.getCurrentDateTime() + "  -- " + count);
             }
 
             @Override
@@ -666,7 +665,7 @@ public class EnglishAppFragment extends Fragment {
                     isSetting = true;
                 }
                 speechLen2 = System.currentTimeMillis();
-                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+                Log.e("ORDER", "Speak done : " + BaseModuleActivity.getCurrentDateTime() + "  -- " + count);
 
                 sw = true;
                 getActivity().runOnUiThread(new Runnable() {
@@ -750,12 +749,12 @@ public class EnglishAppFragment extends Fragment {
     // 영어 문장과 반응 속도 체크 페이지 넘기기.
     @SuppressLint("SetTextI18n")
     public void turnPage() {
-        if ((engIdx+nBackIdx) == 13) {
+        if ((engIdx + nBackIdx) == 13) {
             // 끝처리
             return;
         }
 
-        progress.setText(((engIdx+nBackIdx)+1) + "/13");
+        progress.setText(((engIdx + nBackIdx) + 1) + "/13");
         postSpeech.setText("");
         correct.setBackgroundResource(R.drawable.round_box_g);
         speaking.setBackgroundResource(R.drawable.circleempty);
@@ -860,7 +859,7 @@ public class EnglishAppFragment extends Fragment {
         super.onResume();
 //        loadIdx();
 //        turnPage();
-        if (engIdx+nBackIdx == 13) {
+        if (engIdx + nBackIdx == 13) {
             engIdx = 0;
             nBackIdx = 0;
         }
@@ -886,7 +885,7 @@ public class EnglishAppFragment extends Fragment {
         super.onDestroy();
     }
 
-    private String getTime(){
+    private String getTime() {
         mNow = System.currentTimeMillis();
         mDate = new Date(mNow);
         return mFormat.format(mDate);

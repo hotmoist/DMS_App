@@ -17,4 +17,5 @@ public class Value {
     static public String isCorrect="";
     static public String delayToSpeak="";
     static public String delayDuringSpeak="";
+    static public String RESPONSE_TIME = "";
 }

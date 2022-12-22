@@ -13,9 +13,14 @@ import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +36,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -100,6 +106,9 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private FragmentManager fm;
     private FragmentTransaction fTran;
 
+
+    private Button soundTestBtn;
+
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.activity_prediction;
@@ -115,11 +124,23 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        if(Build.VERSION.SDK_INT >= 30){
-            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        }
+        request(1000, new OnPermissionsResult() {
+            @Override
+            public void OnSuccess() {
+                Toast.makeText(PredictionActivity.this, "Connection Succeed", Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void OnFail(List<String> noPermissions) {
+                Toast.makeText(PredictionActivity.this, "Connection Failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        onCreateProcess();
+        serialBegin(115200);
+
+        // 인지자원 페이지 90도 전환을 위함
         layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
         int w = layout.getWidth();
         int h = layout.getHeight();
@@ -127,7 +148,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
         layout.setRotation(270.0f);
         layout.setTranslationX((w - h) / 2 - 150);
-        layout.setTranslationY((h - w) /2 );
+        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
         lp.height = 650;
@@ -140,7 +161,33 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
         fileNameEdit = findViewById(R.id.CSV_name);
         csvBtn = findViewById(R.id.start_csv);
-        csvBtn.setOnClickListener(view->{startCsvButton();});
+        csvBtn.setOnClickListener(view -> {
+            startCsvButton();
+        });
+
+        // 아두이노 보드(bluno)를 scan 하기 위한 버튼
+        scanBtn = findViewById(R.id.scanBtn);
+        scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buttonScanOnClickProcess();
+            }
+        });
+
+        /**----- serial communication test via sound test -----**/
+
+        //TODO : fragment 또는
+        soundTestBtn = findViewById(R.id.soundTestBtn);
+        soundTestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                serialSend("1");
+            }
+        });
+
+
+        /**--------------------------------------------------- **/
+
 
         // 빈 frag와 영어학습 어플리케이션과의 화면 전환
         englishAppView = findViewById(R.id.englishAppView);
@@ -173,6 +220,29 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         });
     }
 
+    /**
+     * Serial 통신에서 receive 한 데이터
+     * 소리에 대한 반응속도의 string값 받음
+     * TODO: csv db에 넣는것 구현 필요
+     * @param rString
+     */
+    @Override
+    public void onSerialReceived(String rString) {
+        super.onSerialReceived(rString);
+//        String temp = rString;
+
+        if(rString.startsWith("no")){
+            Toast.makeText(PredictionActivity.this, rString, Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(PredictionActivity.this, rString +"ms", Toast.LENGTH_SHORT).show();
+        }
+
+        writer.writeNext(new String[]{
+                getCurrentDateTime().toString(),
+                "response time:",
+                rString+"",});
+    }
+
     protected String getModuleAssetName() {
         if (!TextUtils.isEmpty(mModuleAssetName)) {
             return mModuleAssetName;
@@ -190,11 +260,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @Nullable
     @Override
     protected AnalysisResult analyzeImage(ImageProxy image, int rotationDegrees) {
-        if (mAnalyzeImageErrorState){
+        if (mAnalyzeImageErrorState) {
             return null;
         }
-        try{
-            if(mModule == null){
+        try {
+            if (mModule == null) {
                 final String moduleFileAbsoluteFilePath = new File(
                         Utils.assetFilePath(this, getModuleAssetName())).getAbsolutePath();
                 //module 불러오기
@@ -229,11 +299,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
             }
             final long analysisDuration = SystemClock.elapsedRealtime() - startTime;
             return new AnalysisResult(topKClassNames, topKScores, moduleForwardDuration, analysisDuration);
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e("DSM_EDU", "Error during image analysis", e);
             mAnalyzeImageErrorState = true;
             runOnUiThread(() -> {
-                if(!isFinishing()){
+                if (!isFinishing()) {
                     showErrorDialog(v -> PredictionActivity.this.finish());
                 }
             });
@@ -245,25 +315,53 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
      * 결과값 UI에 반영하기 위한 메소드
      * UI Thread 에 의해 적용
      * UI 요소는 cognitive_result_page.xml 참고
+     *
      * @param result 추론 결과
      */
     @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
         mResultText.setText(result.topNClassNames[0]);
-        mSpeed.setText(String.format("%.2f km/h",Value.SPEED));
+        mSpeed.setText(String.format("%.2f km/h", Value.SPEED));
         mGyroValue.setText(
-                String.format("X : %.2f ",Value.GYRO_X)+
-                String.format("Y : %.2f ",Value.GYRO_Y)+
-                String.format("Z : %.2f ",Value.GYRO_Z));
+                String.format("X : %.2f ", Value.GYRO_X) +
+                        String.format("Y : %.2f ", Value.GYRO_Y) +
+                        String.format("Z : %.2f ", Value.GYRO_Z));
         Value.RESULT = result.topNClassNames[0];
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mModule != null){
+        onDestroyProcess();
+        if (mModule != null) {
             mModule.destroy();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onResumeProcess();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        onActivityResultProcess(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        onPauseProcess();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        onStopProcess();
+    }
+
+
 }
