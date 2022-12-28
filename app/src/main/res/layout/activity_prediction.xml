@@ -96,6 +96,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+<!--        <ViewStub-->
+<!--            android:id="@+id/prediction_texture_view_stub"-->
+<!--            android:layout="@layout/texture_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            />-->
         <TextureView
             android:id="@+id/prediction_texture_view"
             android:layout_width="270px"
@@ -103,6 +111,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <com.forgroundtest.RIS_DSM.ResultView
+            android:id="@+id/prediction_result_view"
+            android:layout_width="270px"
+            android:layout_height="584px"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <include
             layout="@layout/cognitive_result_page"
@@ -111,7 +125,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toEndOf="@id/prediction_texture_view"
+            app:layout_constraintStart_toEndOf="@+id/prediction_result_view"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

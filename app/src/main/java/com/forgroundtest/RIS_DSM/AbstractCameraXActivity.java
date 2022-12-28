@@ -86,7 +86,7 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
         final TextureView textureView = getCameraPreviewTextureView(); // preview 역활을 할  textureview
         final PreviewConfig previewConfig = new PreviewConfig.Builder()
                 .setLensFacing(CameraX.LensFacing.FRONT)
-                .setTargetResolution(new Size(2336, 1080))
+                .setTargetResolution(new Size(1168, 540))
                 .build();
         final Preview preview = new Preview(previewConfig);
         preview.setOnPreviewOutputUpdateListener(output -> {
@@ -100,7 +100,7 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
         final ImageAnalysisConfig imageAnalysisConfig =
                 new ImageAnalysisConfig.Builder()
                         .setLensFacing(CameraX.LensFacing.FRONT)
-                        .setTargetResolution(new Size(224, 224))
+                        .setTargetResolution(new Size(1168, 540))
                         .setCallbackHandler(mBackgroundHandler)
                         .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
                         .build();
