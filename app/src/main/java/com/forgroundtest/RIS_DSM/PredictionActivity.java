@@ -138,21 +138,18 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @Override
     protected TextureView getCameraPreviewTextureView() {
         mResultView = findViewById(R.id.prediction_result_view);
-//        mResultView.setRotation(270.0f);
-//
-//        int w = mResultView.getWidth();
-//        int h = mResultView.getHeight();
-//
-//        mResultView.setTranslationX((w - h) / 2 - 150);
-//        mResultView.setTranslationY((h - w) / 2);
-//
-//        ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) mResultView.getLayoutParams();
-//        lp.height = 600;
-//        lp.width = 200;
-//        mResultView.requestLayout();
+        mResultView.setRotation(270.0f);
+
+        int w = mResultView.getWidth();
+        int h = mResultView.getHeight();
+
+        Log.v("tag", "width :" + w + "height : " + h);
+
+        mResultView.setTranslationX(-157);
+        mResultView.setTranslationY(-157);
+        mResultView.requestLayout();
 
 //        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this.findViewById(android.R.id.content)).getChildAt(0);
-
 //        return ((ViewStub) viewGroup.findViewById(R.id.prediction_texture_view_stub))
 //                .inflate()
 //                .findViewById(R.id.prediction_texture_view);
@@ -188,8 +185,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
 
         layout.setRotation(270.0f);
-        layout.setTranslationX((w - h) / 2 - 150);
-        layout.setTranslationY((h - w) / 2);
+        layout.setTranslationX(-157);
+//        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
         lp.height = 650;
@@ -399,7 +396,9 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
         Bitmap bitmap = imgToBitmap(image.getImage());
         Matrix matrix = new Matrix();
-        matrix.postRotate(270.0f);
+        matrix.setRotate(270.0f);
+//        matrix.setScale(-1, 1); // 좌우 반전
+        matrix.setScale(1, -1);
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, PrePostProcessor.mInputWidth, PrePostProcessor.mInputHeight, true);
 
@@ -447,7 +446,10 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
-//        mResultText.setText(result.topNClassNames[0]);
+//        if(result.mResults != null) return;
+        for( Result tResult: result.mResults ) {
+            mResultText.setText(PrePostProcessor.mClasses[tResult.classIndex]);
+        }
 //        Value.RESULT = result.topNClassNames[0];
         mResultView.setResults(result.mResults);
         mResultView.invalidate();

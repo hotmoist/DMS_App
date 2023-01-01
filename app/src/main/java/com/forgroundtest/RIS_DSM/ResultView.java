@@ -45,6 +45,7 @@ public class ResultView extends View {
         super.onDraw(canvas);
 
         if (mResults == null) return;
+
         for (Result result : mResults) {
             mPaintRectangle.setStrokeWidth(5);
             mPaintRectangle.setStyle(Paint.Style.STROKE);

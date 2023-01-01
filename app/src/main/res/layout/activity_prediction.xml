@@ -113,8 +113,8 @@
 
         <com.forgroundtest.RIS_DSM.ResultView
             android:id="@+id/prediction_result_view"
-            android:layout_width="270px"
-            android:layout_height="584px"
+            android:layout_width="584px"
+            android:layout_height="270px"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
