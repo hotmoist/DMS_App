@@ -1,6 +1,14 @@
 package com.forgroundtest.RIS_DSM;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import androidx.annotation.Nullable;
@@ -17,11 +25,19 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -44,6 +60,7 @@ import android.widget.Toast;
 
 import org.pytorch.IValue;
 import org.pytorch.Module;
+import org.pytorch.LiteModuleLoader;
 import org.pytorch.Tensor;
 import org.pytorch.torchvision.TensorImageUtils;
 import org.w3c.dom.Text;
@@ -66,25 +83,29 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private static final int MOVING_AVG_PERIOD = 10;
 
     static class AnalysisResult {
-
-        private final String[] topNClassNames;
-        private final float[] topNScores;
-        private final long analysisDuration;
-        private final long moduleForwardDuration;
-
-        public AnalysisResult(String[] topNClassNames, float[] topNScores,
-                              long moduleForwardDuration, long analysisDuration) {
-            this.topNClassNames = topNClassNames;
-            this.topNScores = topNScores;
-            this.moduleForwardDuration = moduleForwardDuration;
-            this.analysisDuration = analysisDuration;
-        }
+//        private final String[] topNClassNames;
+//        private final float[] topNScores;
+//        private final long analysisDuration;
+//        private final long moduleForwardDuration;
+//
+//        public AnalysisResult(String[] topNClassNames, float[] topNScores,
+//                              long moduleForwardDuration, long analysisDuration) {
+//            this.topNClassNames = topNClassNames;
+//            this.topNScores = topNScores;
+//            this.moduleForwardDuration = moduleForwardDuration;
+//            this.analysisDuration = analysisDuration;
+//        }
+            private final ArrayList<Result> mResults;
+            public AnalysisResult(ArrayList<Result> results) {
+                mResults = results;
+            }
     }
 
     private TextView mResultText;
 
     private boolean mAnalyzeImageErrorState;
     private Module mModule;
+    private ResultView mResultView;
     private String mModuleAssetName;
     private FloatBuffer mInputTensorBuffer;
     private Tensor mInputTensor;
@@ -116,6 +137,23 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
     @Override
     protected TextureView getCameraPreviewTextureView() {
+        mResultView = findViewById(R.id.prediction_result_view);
+        mResultView.setRotation(270.0f);
+
+        int w = mResultView.getWidth();
+        int h = mResultView.getHeight();
+
+        Log.v("tag", "width :" + w + "height : " + h);
+
+        mResultView.setTranslationX(-157);
+        mResultView.setTranslationY(-157);
+        mResultView.requestLayout();
+
+//        final ViewGroup viewGroup = (ViewGroup) ((ViewGroup) this.findViewById(android.R.id.content)).getChildAt(0);
+//        return ((ViewStub) viewGroup.findViewById(R.id.prediction_texture_view_stub))
+//                .inflate()
+//                .findViewById(R.id.prediction_texture_view);
+
         return findViewById(R.id.prediction_texture_view);
     }
 
@@ -147,8 +185,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
 
         layout.setRotation(270.0f);
-        layout.setTranslationX((w - h) / 2 - 150);
-        layout.setTranslationY((h - w) / 2);
+        layout.setTranslationX(-157);
+//        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
         lp.height = 650;
@@ -229,7 +267,6 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @Override
     public void onSerialReceived(String rString) {
         super.onSerialReceived(rString);
-//        String temp = rString;
 
         if(rString.startsWith("no")){
             Toast.makeText(PredictionActivity.this, rString, Toast.LENGTH_SHORT).show();
@@ -250,65 +287,153 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         final String moduleAssetNameFromIntent = getIntent().getStringExtra(INTENT_MODULE_ASSET_NAME);
         mModuleAssetName = !TextUtils.isEmpty(moduleAssetNameFromIntent)
                 ? moduleAssetNameFromIntent
-                : "resnet18.pt";
+                : "yolov5s.torchscript.ptl";
 
         return mModuleAssetName;
     }
 
+    private Bitmap imgToBitmap(Image image) {
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer yBuffer = planes[0].getBuffer();
+        ByteBuffer uBuffer = planes[1].getBuffer();
+        ByteBuffer vBuffer = planes[2].getBuffer();
 
-    @WorkerThread
+        int ySize = yBuffer.remaining();
+        int uSize = uBuffer.remaining();
+        int vSize = vBuffer.remaining();
+
+        byte[] nv21 = new byte[ySize + uSize + vSize];
+        yBuffer.get(nv21, 0, ySize);
+        vBuffer.get(nv21, ySize, vSize);
+        uBuffer.get(nv21, ySize + vSize, uSize);
+
+        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 75, out);
+
+        byte[] imageBytes = out.toByteArray();
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    }
+
+
+
+//    @WorkerThread
+//    @Nullable
+//    @Override
+//    protected AnalysisResult analyzeImage(ImageProxy image, int rotationDegrees) {
+//        if (mAnalyzeImageErrorState) {
+//            return null;
+//        }
+//        try {
+//            if (mModule == null) {
+//                final String moduleFileAbsoluteFilePath = new File(
+//                        Utils.assetFilePath(this, getModuleAssetName())).getAbsolutePath();
+//                //module 불러오기
+//                mModule = Module.load(moduleFileAbsoluteFilePath);
+//
+//                mInputTensorBuffer =
+//                        Tensor.allocateFloatBuffer(3 * INPUT_TENSOR_WIDTH * INPUT_TENSOR_HEIGHT);
+//                mInputTensor = Tensor.fromBlob(mInputTensorBuffer, new long[]{1, 3, INPUT_TENSOR_HEIGHT, INPUT_TENSOR_WIDTH});
+//            }
+//
+//            final long startTime = SystemClock.elapsedRealtime();
+//            TensorImageUtils.imageYUV420CenterCropToFloatBuffer(
+//                    image.getImage(), rotationDegrees,
+//                    INPUT_TENSOR_WIDTH, INPUT_TENSOR_HEIGHT,
+//                    TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
+//                    TensorImageUtils.TORCHVISION_NORM_STD_RGB,
+//                    mInputTensorBuffer, 0);
+//
+//            final long moduleForwardStartTime = SystemClock.elapsedRealtime();
+//            final Tensor outputTensor = mModule.forward(IValue.from(mInputTensor)).toTensor();
+//            final long moduleForwardDuration = SystemClock.elapsedRealtime() - moduleForwardStartTime;
+//
+//            final float[] scores = outputTensor.getDataAsFloatArray();
+//            final int[] ixs = Utils.topK(scores, TOP_K);
+//
+//            final String[] topKClassNames = new String[TOP_K];
+//            final float[] topKScores = new float[TOP_K];
+//            for (int i = 0; i < TOP_K; i++) {
+//                final int ix = ixs[i];
+//                topKClassNames[i] = Constants.IMAGENET_CLASSES[ix];
+//                topKScores[i] = scores[ix];
+//            }
+//            final long analysisDuration = SystemClock.elapsedRealtime() - startTime;
+//            return new AnalysisResult(topKClassNames, topKScores, moduleForwardDuration, analysisDuration);
+//        } catch (Exception e) {
+//            Log.e("DSM_EDU", "Error during image analysis", e);
+//            mAnalyzeImageErrorState = true;
+//            runOnUiThread(() -> {
+//                if (!isFinishing()) {
+//                    showErrorDialog(v -> PredictionActivity.this.finish());
+//                }
+//            });
+//        }
+//        return null;
+//    }
+
+
     @Nullable
+    @WorkerThread
     @Override
     protected AnalysisResult analyzeImage(ImageProxy image, int rotationDegrees) {
-        if (mAnalyzeImageErrorState) {
+        try{
+            if(mModule == null){
+                mModule = LiteModuleLoader.load(PredictionActivity.assetFilePath(getApplicationContext(), "yolov5s.torchscript.ptl"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("classes.txt")));
+                String line;
+                List<String> classes = new ArrayList<>();
+                while ((line = br.readLine()) != null) {
+                    classes.add(line);
+                }
+                PrePostProcessor.mClasses = new String[classes.size()];
+                classes.toArray(PrePostProcessor.mClasses);
+            }
+        } catch (IOException e){
+            Log.e("DMS", "Error reading assets", e);
             return null;
         }
-        try {
-            if (mModule == null) {
-                final String moduleFileAbsoluteFilePath = new File(
-                        Utils.assetFilePath(this, getModuleAssetName())).getAbsolutePath();
-                //module 불러오기
-                mModule = Module.load(moduleFileAbsoluteFilePath);
 
-                mInputTensorBuffer =
-                        Tensor.allocateFloatBuffer(3 * INPUT_TENSOR_WIDTH * INPUT_TENSOR_HEIGHT);
-                mInputTensor = Tensor.fromBlob(mInputTensorBuffer, new long[]{1, 3, INPUT_TENSOR_HEIGHT, INPUT_TENSOR_WIDTH});
-            }
+        Bitmap bitmap = imgToBitmap(image.getImage());
+        Matrix matrix = new Matrix();
+        matrix.setRotate(270.0f);
+//        matrix.setScale(-1, 1); // 좌우 반전
+        matrix.setScale(1, -1);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, PrePostProcessor.mInputWidth, PrePostProcessor.mInputHeight, true);
 
-            final long startTime = SystemClock.elapsedRealtime();
-            TensorImageUtils.imageYUV420CenterCropToFloatBuffer(
-                    image.getImage(), rotationDegrees,
-                    INPUT_TENSOR_WIDTH, INPUT_TENSOR_HEIGHT,
-                    TensorImageUtils.TORCHVISION_NORM_MEAN_RGB,
-                    TensorImageUtils.TORCHVISION_NORM_STD_RGB,
-                    mInputTensorBuffer, 0);
+        final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(resizedBitmap, PrePostProcessor.NO_MEAN_RGB, PrePostProcessor.NO_STD_RGB);
+        IValue[] outputTuple = mModule.forward(IValue.from(inputTensor)).toTuple();
+        final Tensor outputTensor = outputTuple[0].toTensor();
+        final float[] outputs = outputTensor.getDataAsFloatArray();
 
-            final long moduleForwardStartTime = SystemClock.elapsedRealtime();
-            final Tensor outputTensor = mModule.forward(IValue.from(mInputTensor)).toTensor();
-            final long moduleForwardDuration = SystemClock.elapsedRealtime() - moduleForwardStartTime;
+        float imgScaleX = (float)bitmap.getWidth() / PrePostProcessor.mInputWidth;
+        float imgScaleY = (float)bitmap.getHeight() / PrePostProcessor.mInputHeight;
+        float ivScaleX = (float)mResultView.getWidth() / bitmap.getWidth();
+        float ivScaleY = (float)mResultView.getHeight() / bitmap.getHeight();
 
-            final float[] scores = outputTensor.getDataAsFloatArray();
-            final int[] ixs = Utils.topK(scores, TOP_K);
+        final ArrayList<Result> results = PrePostProcessor.outputsToNMSPredictions(outputs, imgScaleX, imgScaleY, ivScaleX, ivScaleY, 0, 0);
 
-            final String[] topKClassNames = new String[TOP_K];
-            final float[] topKScores = new float[TOP_K];
-            for (int i = 0; i < TOP_K; i++) {
-                final int ix = ixs[i];
-                topKClassNames[i] = Constants.IMAGENET_CLASSES[ix];
-                topKScores[i] = scores[ix];
-            }
-            final long analysisDuration = SystemClock.elapsedRealtime() - startTime;
-            return new AnalysisResult(topKClassNames, topKScores, moduleForwardDuration, analysisDuration);
-        } catch (Exception e) {
-            Log.e("DSM_EDU", "Error during image analysis", e);
-            mAnalyzeImageErrorState = true;
-            runOnUiThread(() -> {
-                if (!isFinishing()) {
-                    showErrorDialog(v -> PredictionActivity.this.finish());
-                }
-            });
+        return new AnalysisResult(results);
+    }
+
+    public static String assetFilePath(Context context, String assetName) throws IOException {
+        File file = new File(context.getFilesDir(), assetName);
+        if (file.exists() && file.length() > 0) {
+            return file.getAbsolutePath();
         }
-        return null;
+
+        try (InputStream is = context.getAssets().open(assetName)) {
+            try (OutputStream os = new FileOutputStream(file)) {
+                byte[] buffer = new byte[4 * 1024];
+                int read;
+                while ((read = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, read);
+                }
+                os.flush();
+            }
+            return file.getAbsolutePath();
+        }
     }
 
     /**
@@ -321,13 +446,18 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void applyToUiAnalyzeImageResult(AnalysisResult result) {
-        mResultText.setText(result.topNClassNames[0]);
+//        if(result.mResults != null) return;
+        for( Result tResult: result.mResults ) {
+            mResultText.setText(PrePostProcessor.mClasses[tResult.classIndex]);
+        }
+//        Value.RESULT = result.topNClassNames[0];
+        mResultView.setResults(result.mResults);
+        mResultView.invalidate();
         mSpeed.setText(String.format("%.2f km/h", Value.SPEED));
         mGyroValue.setText(
                 String.format("X : %.2f ", Value.GYRO_X) +
                         String.format("Y : %.2f ", Value.GYRO_Y) +
                         String.format("Z : %.2f ", Value.GYRO_Z));
-        Value.RESULT = result.topNClassNames[0];
     }
 
     @Override
