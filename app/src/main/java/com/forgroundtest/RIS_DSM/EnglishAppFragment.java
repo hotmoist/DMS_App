@@ -93,11 +93,13 @@ public class EnglishAppFragment extends Fragment {
     int count=0;
     private char[] nBackArr;
     private boolean isSpeaking = false;
+    private SpeechRecognizer speechRecognizer = null;
+
+    private boolean check=false;
 
 
     private com.google.android.material.button.MaterialButton appStartBtn;
     private TextToSpeech textToSpeech = null;
-    private SpeechRecognizer speechRecognizer = null;
 
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private MediaRecorder mediaRecorder;
@@ -186,6 +188,7 @@ public class EnglishAppFragment extends Fragment {
         replayBtn = rootView.findViewById(R.id.replaybtn);
         correct = rootView.findViewById(R.id.correct);
         backBtn = rootView.findViewById(R.id.backbutton1);
+
         blindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -330,6 +333,7 @@ public class EnglishAppFragment extends Fragment {
             }
         });
 
+        sttInitialize();
         // check permission to record
         if (getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE)) {
             requestRecordAudioPermission();
@@ -357,6 +361,9 @@ public class EnglishAppFragment extends Fragment {
     // 나중에 영어학습 어플 구축할 때 필요함
     boolean sw = true;
     private void sttInitialize() {
+
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
@@ -383,8 +390,11 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onError(int i) {
-                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
-                startListen();
+                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime()+ check);
+//                speechRecognizer.stopListening();
+                if(!check) {
+                    startListen();
+                }
             }
 
             @Override
@@ -396,7 +406,9 @@ public class EnglishAppFragment extends Fragment {
                     postSpeech.setText(str.get(0));
                     answerCheck();
                 }
-                speechRecognizer.stopListening();
+//                speechRecognizer.stopListening();
+//                speechRecognizer.cancel();
+//                speechRecognizer.destroy();
             }
 
             @Override
@@ -437,9 +449,12 @@ public class EnglishAppFragment extends Fragment {
             else {
                 correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
             }
+
         }
 
+        check = true;
         follow.setText("");
+//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
 
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 
@@ -453,6 +468,8 @@ public class EnglishAppFragment extends Fragment {
 //                turnPage();
 //            }
 //        }, 1500);
+//        speechRecognizer.destroy();
+//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
     }
 
 
@@ -525,6 +542,7 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onStart(String s) {
                 speechLen1 = System.currentTimeMillis();
+                check=false;
                 Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
@@ -638,8 +656,6 @@ public class EnglishAppFragment extends Fragment {
 
 // 나중에 stt가 필요함. (지우기 말 것)
     private void startListen() {
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-        sttInitialize();
 
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
