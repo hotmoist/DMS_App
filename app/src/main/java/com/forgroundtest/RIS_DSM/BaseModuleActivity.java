@@ -265,7 +265,6 @@ public class BaseModuleActivity extends AppCompatActivity {
                                     String value = String.valueOf(task.getResult().getValue());
                                     if (value.equals("true")) {
                                         mDatabase.child("study").child("isNBackTest").setValue(false);
-                                        EnglishAppFragment.isnBack = true;
                                         EnglishAppFragment.exampi.callOnClick();
                                     }
                                 }

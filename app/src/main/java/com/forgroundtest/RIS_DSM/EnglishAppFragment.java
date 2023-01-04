@@ -530,14 +530,8 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onDone(String s) {
-                if (!isSetting) {
-//                    speechLen2 = System.currentTimeMillis();
-                    isSetting = true;
-                }
                 speechLen2 = System.currentTimeMillis();
-                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-
-                sw = true;
+//                Log.e("ORDER", "Speak done : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -553,7 +547,7 @@ public class EnglishAppFragment extends Fragment {
                     public void run() {
                         if (isEng) {
                             delay1 = System.currentTimeMillis();
-//                            startListen();
+                            startListen();
                         }
                     }
                 });
@@ -630,6 +624,7 @@ public class EnglishAppFragment extends Fragment {
         correct.setBackgroundResource(R.drawable.round_box_g);
         speaking.setBackgroundResource(R.drawable.circleempty);
         speaking.setTextColor(Color.BLACK);
+        follow.setText("");
         if (isEng) {
             if (engIdx == eng.length) {
                 Toast.makeText(getContext(), "다음 영어 문장이 없습니다.", Toast.LENGTH_SHORT).show();
