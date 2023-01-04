@@ -79,7 +79,6 @@ public class EnglishAppFragment extends Fragment {
     public static int engIdx = 0;
     public static int nBackIdx = 0;
     public static boolean isEng = false;
-    public static boolean isnBack = false;
     public static Button exampi;
     private long delay1 = 0;
     private long delay2 = 0;
@@ -208,7 +207,7 @@ public class EnglishAppFragment extends Fragment {
                  * controller button 클릭 후 실행되는 블럭
                  */
 
-                if (true) {
+
 
                     /**
                      * beep sound 및 반응 속도 체크 코드 추가
@@ -310,10 +309,7 @@ public class EnglishAppFragment extends Fragment {
 //                        }
 //                    });
 
-                } else {
-                    // 영어 문장 test일때만 실행 (반응속도 test이기 때문에 조건문 항상 true, 나중에 수정할 것)
-                    turnPage();
-                }
+                turnPage();
             }
         });
 
@@ -360,187 +356,60 @@ public class EnglishAppFragment extends Fragment {
     // Initialize The stt service.
     // 나중에 영어학습 어플 구축할 때 필요함
     boolean sw = true;
-//    private void sttInitialize() {
-//        speechRecognizer.setRecognitionListener(new RecognitionListener() {
-//            @Override
-//            public void onReadyForSpeech(Bundle bundle) {
-//                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//            }
+    private void sttInitialize() {
+        speechRecognizer.setRecognitionListener(new RecognitionListener() {
+            @Override
+            public void onReadyForSpeech(Bundle bundle) {
+                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+            }
+
+            @Override
+            public void onBeginningOfSpeech() {
+            }
+
+            @Override
+            public void onRmsChanged(float v) {
+            }
+
+            @Override
+            public void onBufferReceived(byte[] bytes) {
+                Log.e("ORDER", "listen buffer : "+BaseModuleActivity.getCurrentDateTime());
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
+            }
+
+            @Override
+            public void onError(int i) {
+                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
+                startListen();
+            }
+
+            @Override
+            public void onResults(Bundle bundle) {
+
+                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 //
-//            @Override
-//            public void onBeginningOfSpeech() {
-//                delay2 = System.currentTimeMillis();
-//                Log.e("ORDER", "listen begin : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//
-//                Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
-//            }
-//
-//            @Override
-//            public void onRmsChanged(float v) {
-//                long time = System.currentTimeMillis();
-//                Log.e("ORDER", "listen change : " + v+"  -- "+count);
-//
-////                double realDb = 0;
-////                if (mediaRecorder != null) {
-////                    realDb = getDb();
-////                    Log.e("realDB", String.valueOf(realDb));
-////                }
-//
-//                if( v>=10 || v<=-10) {
-//                    Log.e("ORDER", "listen change : " + v+"  -- "+count);
-//
-//                    if(speechLen2-speechLen1>=0) {
-//                        Log.e("ORDER", "대답했습니다. : ");
-//                        Log.e("ORDER", "끝 - 시작 : " + (time - speechLen2) + "  -- " + count);
-//
-//                        isSpeaking = false;
-//
-//                        /**
-//                         * 저장
-//                         *
-//                         */
-//
-//                        try {
-//                            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_number"+FILE_NAME;
-//                            file = new FileWriter(path,true);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                            Toast.makeText(getContext(),"파일이 생성되지않았습니다.",Toast.LENGTH_LONG).show();
-//                        }
-//                        writer = new CSVWriter(file);
-///**
-// *                      getCurrentDateTime().toString()+","
-// *                      +Value.SPEED+","
-// *                      +Value.ACC+","
-// *                      +Value.GYRO_X+","
-// *                      +Value.GYRO_Y+","
-// *                      +Value.GYRO_Z+","
-// *                      +Value.LIGHT
-// */
-//                        /**
-//                         * 저장 컬럼 제목 넣기
-//                         */
-//                        // 난중에 수정할 것. (incorrect한 index list화)
-//                        writer.writeNext(new String[]{
-//                                "currentTime",
-//                                "index",
-//                                "correct",
-//                                "tts start to stt end",
-//                                "tts end to stt end",});
-//                        /**
-//                         * 저장 컬럼별 데이터
-//                         */
-//                        if ( count > 2 && nBackArr[count-3] == nBackArr[count-1]) {
-//                            writer.writeNext(new String[]{
-//                                            BaseModuleActivity.getCurrentDateTime().toString(),
-//                                            count + "",
-//                                            "true",
-//                                            (time - speechLen1)+"",
-//                                            (time - speechLen2)+"",
-//                                    }
-//                            );
-//                        }else{
-//                            writer.writeNext(new String[]{
-//                                            BaseModuleActivity.getCurrentDateTime().toString(),
-//                                            count + "",
-//                                            "false",
-//                                            (time - speechLen1)+"",
-//                                            (time - speechLen2)+"",
-//                                    }
-//                            );
-//                        }
-//
-//                        try {
-//                            writer.close();
-//                        } catch (IOException e) {
-//                            Toast.makeText(getContext(),"파일이 종료되지않았습니다.",Toast.LENGTH_LONG).show();
-//                            e.printStackTrace();
-//                        }
-//
-//                        sw = false;
-//
-//
-//                        Log.e("ORDER", "듣기종료 : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onBufferReceived(byte[] bytes) {
-//                Log.e("ORDER", "listen buffer : "+BaseModuleActivity.getCurrentDateTime());
-////                double realDb = 0;
-////                if (mediaRecorder != null) {
-////                    realDb = getDb();
-////                    Log.e("realDB", String.valueOf(realDb));
-////                }
-//
-//            }
-//
-//            @Override
-//            public void onEndOfSpeech() {
-//                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//
-////                double realDb = 0;
-////                if (mediaRecorder != null) {
-////                    realDb = getDb();
-////                    Log.e("realDB", String.valueOf(realDb));
-////                }
-//            }
-//
-//            @Override
-//            public void onError(int i) {
-//                Log.e("ORDER", "listen error : "+BaseModuleActivity.getCurrentDateTime());
-//
-//                if (isEng) {
-//                    startListen();
-//                }
-////                startListen();
-//                if( System.currentTimeMillis() - start_record<=2000) {
-//                    startListen();
-//                }
-//
-//                // 15750
-//            }
-//
-//            @Override
-//            public void onResults(Bundle bundle) {
-//                Log.e("ORDER", "listen Result : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-//
-//                Log.e("발화 시간:", String.valueOf((speechLen2-speechLen1) + "초"));
-//
-//                ArrayList<String> str = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-//
-////
-//                if (str.get(0) != null) {
-//                    if (!isnBack) {
-//                        postSpeech.setText(str.get(0));
-//                        answerCheck();
-//                    } else {
-//                        postSpeech.setText(str.get(0));
-//                    }
-//                }
-////                if(!str.get(0).equals("네")) {
-////                    startListen();
-////                }
-//                speechRecognizer.stopListening();
-//            }
-//
-//            @Override
-//            public void onPartialResults(Bundle bundle) {
-////                ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-////                String text = "";
-////                for (String result : matches)
-////                    text += result;
-////
-////                postSpeech.setText(text);
-//            }
-//
-//            @Override
-//            public void onEvent(int i, Bundle bundle) {
-//
-//            }
-//        });
-//    }
+                if (str.get(0) != null) {
+                    postSpeech.setText(str.get(0));
+                    answerCheck();
+                }
+                speechRecognizer.stopListening();
+            }
+
+            @Override
+            public void onPartialResults(Bundle bundle) {
+
+            }
+
+            @Override
+            public void onEvent(int i, Bundle bundle) {
+
+            }
+        });
+    }
 
     // Compare answer to Input
     // 영어 문장 정확도 체크
@@ -750,12 +619,13 @@ public class EnglishAppFragment extends Fragment {
     // 영어 문장과 반응 속도 체크 페이지 넘기기.
     @SuppressLint("SetTextI18n")
     public void turnPage() {
-        if ((engIdx+nBackIdx) == 13) {
+        if ((engIdx) == eng.length) {
             // 끝처리
+            Toast.makeText(getContext(), "다음 영어 문장이 없습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        progress.setText(((engIdx+nBackIdx)+1) + "/13");
+        progress.setText(((engIdx)+1) + "/" + String.valueOf(eng.length));
         postSpeech.setText("");
         correct.setBackgroundResource(R.drawable.round_box_g);
         speaking.setBackgroundResource(R.drawable.circleempty);
@@ -763,43 +633,26 @@ public class EnglishAppFragment extends Fragment {
         if (isEng) {
             if (engIdx == eng.length) {
                 Toast.makeText(getContext(), "다음 영어 문장이 없습니다.", Toast.LENGTH_SHORT).show();
-                isEng = false;
                 return;
             }
             speechSct.setText(eng[engIdx]);
             firstKor.setText(kor[engIdx++]);
             speak(speechSct.getText().toString());
         }
-//        } else {
-//            if (nBackIdx == NBack.nBack.length) {
-//                Toast.makeText(getContext(), "다음 nBack data가 없습니다.", Toast.LENGTH_SHORT).show();
-//                isnBack = false;
-//                return;
-//            }
-//            speechSct.setText(NBack.nBack[nBackIdx]);
-//            firstKor.setText("");
-//            speak(NBack.nBackKor[nBackIdx++]);
-//            nback();
-//        }
     }
 
 // 나중에 stt가 필요함. (지우기 말 것)
-//    private void startListen() {
-//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-//        sttInitialize();
-//
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        if (isnBack) {
-//            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
-//        } else {
-//            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
-//        }
-//        intent.putExtra("android.speech.extra.DICTATION_MODE", true);
-////        intent.putExtra("EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS","");
-//        speechRecognizer.startListening(intent);
-//    }
+    private void startListen() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
+        sttInitialize();
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+        intent.putExtra("android.speech.extra.DICTATION_MODE", true);
+        speechRecognizer.startListening(intent);
+    }
 
     // tts speak함수.
     private String speak(String text) {
