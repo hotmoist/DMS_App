@@ -331,7 +331,8 @@ public class EnglishAppFragment extends Fragment {
                     //  FIXME:  난중에 수정할 것. (incorrect한 index list화)
                     BaseModuleActivity.writer.writeNext(new String[]{
                             BaseModuleActivity.getCurrentDateTime(),
-                            "nback test start",});
+                            "response test start",});
+
 
 //                    Timer timer = new Timer();
 //                    TimerTask timerTask = new TimerTask() {
@@ -472,7 +473,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onEndOfSpeech() {
-             }
+            }
 
             @Override
             public void onError(int i) {
@@ -576,7 +577,7 @@ public class EnglishAppFragment extends Fragment {
                 });
 
         try {
-            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/nback_test_string"+FILE_NAME;
+            String path = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS) +"/"+FILE_NAME;
             file = new FileWriter(path,true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -600,21 +601,27 @@ public class EnglishAppFragment extends Fragment {
         /**
          * 저장 컬럼 제목 넣기
          */
-        writer.writeNext(new String[]{
-                "currentTime",
-                "starting Point of incorrect",
-                "correct",
-                "start time",
-                "speaking time",});
+//        writer.writeNext(new String[]{
+//                "currentTime",
+//                "starting Point of incorrect",
+//                "correct",
+//                "start time",
+//                "speaking time",});
         /**
          * 저장 컬럼별 데이터
          */
         writer.writeNext(new String[]{
                 BaseModuleActivity.getCurrentDateTime().toString(),
+                Value.SPEED+"",
+                Value.ACC+"",
+                Value.GYRO_X+"",
+                Value.GYRO_Y+"",
+                Value.GYRO_Z+"",
                 wordCnt+"",
                 isCorrect+"",
                 delayToSpeak+"",
-                delayDuringSpeak+"",});
+                delayDuringSpeak+"",
+        });
         try {
             writer.close();
         } catch (IOException e) {
@@ -630,6 +637,9 @@ public class EnglishAppFragment extends Fragment {
             public void onStart(String s) {
                 speechLen1 = System.currentTimeMillis();
                 check=false;
+                BaseModuleActivity.writer.writeNext(new String[]{
+                        BaseModuleActivity.getCurrentDateTime(),
+                        "tts test start",});
             }
 
             @Override
