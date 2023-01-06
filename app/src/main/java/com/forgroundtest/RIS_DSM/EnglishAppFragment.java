@@ -85,15 +85,7 @@ public class EnglishAppFragment extends Fragment {
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
-    private long len1 = 0;
-    private long len2 = 0;
-    private int englishIndex = 0;
-    private int cnt = 0;
-    long start_record = 0l;
-    private boolean isSetting = false;
-    int count=0;
-    private char[] nBackArr;
-    private boolean isSpeaking = false;
+
     private SpeechRecognizer speechRecognizer = null;
 
     private boolean check=false;
@@ -105,7 +97,6 @@ public class EnglishAppFragment extends Fragment {
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private MediaRecorder mediaRecorder;
 
-    private NBack nBack = new NBack();
     private TextView speaking;
 
     private TextView speechSct;
@@ -114,11 +105,7 @@ public class EnglishAppFragment extends Fragment {
     private TextView follow;
     private TextView postSpeech;
     private ImageButton blindBtn;
-    private ImageButton leftBtn;
-    private ImageButton rightBtn;
-    private ImageButton replayBtn;
     private ImageButton correct;
-    private ImageButton backBtn;
 
     private LinearLayout something;
 
@@ -172,23 +159,20 @@ public class EnglishAppFragment extends Fragment {
         appStartBtn = getActivity().findViewById(R.id.appStartingBtn);
         appStartBtn.setVisibility(View.INVISIBLE);
 
-//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
         speechSct = rootView.findViewById(R.id.speechScript);
         firstKor = rootView.findViewById(R.id.firstKor);
         progress = rootView.findViewById(R.id.progress);
         follow = rootView.findViewById(R.id.follow);
         postSpeech = rootView.findViewById(R.id.postSpeech);
         speaking = rootView.findViewById(R.id.speaking);
-        speechSct.setText(eng[engIdx]);
-        firstKor.setText(kor[engIdx]);
-        progress.setText(((engIdx+nBackIdx)+1) + "/13");
+        speechSct.setText("");
+        firstKor.setText("");
+        progress.setText(((engIdx)+1) + "/" + eng.length);
         follow.setText("");
         postSpeech.setText("");
         something = rootView.findViewById(R.id.something);
         blindBtn = rootView.findViewById(R.id.blind);
-        replayBtn = rootView.findViewById(R.id.replaybtn);
         correct = rootView.findViewById(R.id.correct);
-        backBtn = rootView.findViewById(R.id.backbutton1);
 
         blindBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -414,7 +398,6 @@ public class EnglishAppFragment extends Fragment {
 //                    });
 
                 } else {
-                    // TODO : 영어 문장 test일때만 실행 (반응속도 test이기 때문에 조건문 항상 true, 나중에 수정할 것)
                     turnPage();
 
                 }
@@ -465,7 +448,6 @@ public class EnglishAppFragment extends Fragment {
 
     // Initialize The stt service.
     // 나중에 영어학습 어플 구축할 때 필요함
-    boolean sw = true;
     private void sttInitialize() {
 
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
@@ -473,7 +455,6 @@ public class EnglishAppFragment extends Fragment {
         speechRecognizer.setRecognitionListener(new RecognitionListener() {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
-                Log.e("ORDER", "listen ready : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
@@ -491,8 +472,7 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onEndOfSpeech() {
-                Log.e("ORDER", "listen speach end : "+BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
-            }
+             }
 
             @Override
             public void onError(int i) {
@@ -560,8 +540,6 @@ public class EnglishAppFragment extends Fragment {
 
         check = true;
         follow.setText("");
-//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 
         // write the firebase realtimeDB about 4 diffrent case
@@ -574,8 +552,6 @@ public class EnglishAppFragment extends Fragment {
 //                turnPage();
 //            }
 //        }, 1500);
-//        speechRecognizer.destroy();
-//        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
     }
 
 
@@ -585,6 +561,7 @@ public class EnglishAppFragment extends Fragment {
         isEng = false;
         Case ca = new Case(getTime(), wordCnt, isCorrect, delayToSpeak, delayDuringSpeak);
 
+        // firebase에 저장.
         mDatabase.child("study").child("test").child("englishTest").child(String.valueOf(idx)).setValue(ca).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -615,10 +592,14 @@ public class EnglishAppFragment extends Fragment {
  *                      +Value.GYRO_Z+","
  *                      +Value.LIGHT
  */
+
+        /**
+         * todo 영어 문장 stt 끝난 후 csv 처리
+         * wordCnt는 틀린 단어 개수, delayToSpeak와 delayDuringSpeak는 지워도됨.
+         */
         /**
          * 저장 컬럼 제목 넣기
          */
-        // 난중에 수정할 것. (incorrect한 index list화)
         writer.writeNext(new String[]{
                 "currentTime",
                 "starting Point of incorrect",
@@ -649,7 +630,6 @@ public class EnglishAppFragment extends Fragment {
             public void onStart(String s) {
                 speechLen1 = System.currentTimeMillis();
                 check=false;
-                Log.e("ORDER", "Speak run : "+ BaseModuleActivity.getCurrentDateTime()+"  -- "+count);
             }
 
             @Override
@@ -685,54 +665,6 @@ public class EnglishAppFragment extends Fragment {
         });
     }
 
-//    private void mediaRecordStart() throws IOException {
-//        try {
-//            Log.e("mediaRecord", "listenStart");
-//            if (mediaRecorder == null) {
-//                mediaRecorder = new MediaRecorder();
-//                mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//                mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.OGG);
-//                mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.OPUS);
-//                mediaRecorder.setOutputFile("/dev/null");
-////                mediaRecorder.setMaxDuration(1500);
-////                mediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
-////                    @Override
-////                    public void onInfo(MediaRecorder mediaRecorder, int i, int i1) {
-////                        Log.e("media", "stoplisten");
-////                        if (i == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-////                            Log.e("liEnd", String.valueOf(System.currentTimeMillis()-len1));
-////
-////                            double amplitudeDb = 20 * Math.log10((double) Math.abs(amplitude));
-////                            Log.e("db", String.valueOf(amplitude));
-////                            mediaRecorder.stop();
-////                            mediaRecorder.release();
-////                            mediaRecorder = null;
-////                        }
-////                    }
-////                });
-//                try {
-//                    mediaRecorder.prepare();
-//                }catch (java.io.IOException ioe) {
-//                    android.util.Log.e("[Monkey]", "IOException: " +
-//                            android.util.Log.getStackTraceString(ioe));
-//
-//                }catch (java.lang.SecurityException e) {
-//                    android.util.Log.e("[Monkey]", "SecurityException: " +
-//                            android.util.Log.getStackTraceString(e));
-//                }
-//                try{
-//                    mediaRecorder.start();
-//                    len1 = System.currentTimeMillis();
-//                }catch (java.lang.SecurityException e) {
-//                    android.util.Log.e("[Monkey]", "SecurityException: " +
-//                            android.util.Log.getStackTraceString(e));
-//                }
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     // 영어 문장과 반응 속도 체크 페이지 넘기기.
     @SuppressLint("SetTextI18n")
@@ -810,7 +742,6 @@ public class EnglishAppFragment extends Fragment {
         return 20 * Math.log10((double) Math.abs(amplitude));
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -821,8 +752,6 @@ public class EnglishAppFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-////        saveIdx();
-//        EnglishAppFragment.engIdx--;
     }
 
     @Override
@@ -830,9 +759,8 @@ public class EnglishAppFragment extends Fragment {
         super.onResume();
 //        loadIdx();
 //        turnPage();
-        if (engIdx+nBackIdx == 13) {
+        if (engIdx == eng.length) {
             engIdx = 0;
-            nBackIdx = 0;
         }
     }
 
