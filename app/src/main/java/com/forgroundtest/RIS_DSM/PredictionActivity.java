@@ -14,25 +14,16 @@ import java.util.*;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.ImageProxy;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -40,30 +31,25 @@ import android.graphics.YuvImage;
 import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.pytorch.IValue;
 import org.pytorch.Module;
 import org.pytorch.LiteModuleLoader;
 import org.pytorch.Tensor;
 import org.pytorch.torchvision.TensorImageUtils;
-import org.w3c.dom.Text;
 
 import java.nio.FloatBuffer;
 
@@ -109,8 +95,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private String mModuleAssetName;
     private FloatBuffer mInputTensorBuffer;
     private Tensor mInputTensor;
-    private long mMovingAvgSum = 0;
-    private Queue<Long> mMovingAvgQueue = new LinkedList<>();
+    private final long mMovingAvgSum = 0;
+    private final Queue<Long> mMovingAvgQueue = new LinkedList<>();
 
     private LinearLayout layout;
 
@@ -127,6 +113,21 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private FragmentManager fm;
     private FragmentTransaction fTran;
 
+    /**
+     * 인지부하식 연산 관련 변수
+     */
+    private int cognitiveLoadVal;
+    private static final int OPTIMAL_COGNITIVE_LOAD = 150; // 적정 인지부하량
+    private static final int UNIT_TIME = 1000;
+
+    // firebase 관련 변수
+    private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    
+    private Timer timer;
+    private TimerTask timerTask;
+    private ImageButton testToCogIncre;
+    private ImageButton testToCogDecre;
+    private int count = 145;
 
     private Button soundTestBtn;
 
@@ -242,9 +243,13 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         appStartingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!isSafe()) {
+                    return; // 안정된 인지부하인 경우에만 영어 학습 어플로 넘어가기
+                }
                 fTran = fm.beginTransaction();
                 fTran.replace(R.id.englishApp, englishAppFragment);
                 fTran.commit();
+
             }
         });
 
@@ -256,6 +261,68 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 fTran.commit();
             }
         });
+        
+        onStartCogChange();
+        testToCogIncre = findViewById(R.id.test_to_cog_incre);
+        testToCogIncre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count++;
+                Log.e("cog", count+"");
+            }
+        });
+        testToCogDecre = findViewById(R.id.test_to_cog_decre);
+        testToCogDecre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count--;
+                Log.e("cog", count+"");
+            }
+        });
+    }
+
+    private void onStartCogChange() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                onCalculateCogLoad();
+                
+                // 인지부하량이 최적보다 높으면 영어학습 어플 강제 중지
+                if (!isSafe()) {
+                    fTran = fm.beginTransaction();
+                    fTran.replace(R.id.englishApp, beforeAppFragment);
+                    fTran.commit();
+                }
+            }
+        };
+        
+        timer.schedule(timerTask, 0, UNIT_TIME);
+    }
+
+    private void onCalculateCogLoad() {
+        /**
+         * todo 인지부하식 작성 함수
+         * 파라미터가 필요하면 작성하3
+         * 100 등의 인지부하 연산 결과값을 작성으로 함수 마무리
+         */
+        int cognitiveLoad = onCalculate();
+        onChangeCogLoad();
+        setCognitiveLoadVal(count);
+    }
+
+    private int onCalculate() {
+        // 인지부하 연산.
+
+        return 0;
+    }
+
+    private void onChangeCogLoad() {
+        // todo 인지부하가 1초마다 어떻게 변하는지 csv에 별도 저장하는 코드 필요
+    }
+
+    private boolean isSafe() {
+        return cognitiveLoadVal() <= OPTIMAL_COGNITIVE_LOAD;
     }
 
     /**
@@ -275,7 +342,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         }
 
         writer.writeNext(new String[]{
-                getCurrentDateTime().toString(),
+                getCurrentDateTime(),
                 "response time:",
                 rString+"",});
     }
@@ -460,12 +527,29 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                         String.format("Z : %.2f ", Value.GYRO_Z));
     }
 
+    public int cognitiveLoadVal() {
+        return cognitiveLoadVal;
+    }
+
+    public void setCognitiveLoadVal(int cognitiveLoadVal) {
+        this.cognitiveLoadVal = cognitiveLoadVal;
+        mDatabase.child("study").child("test").child("realTimeCognitiveLoad").setValue(cognitiveLoadVal());
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         onDestroyProcess();
         if (mModule != null) {
             mModule.destroy();
+        }
+
+        if (timerTask != null) {
+            timerTask.cancel();
+        }
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
         }
     }
 

@@ -396,7 +396,7 @@ public class EnglishAppFragment extends Fragment {
 //                            startListen();
 //                        }
 //                    });
-
+                    isnBack = false;
                 } else {
                     turnPage();
 
