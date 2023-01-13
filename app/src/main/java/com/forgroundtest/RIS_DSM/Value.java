@@ -12,6 +12,7 @@ public class Value {
     static public String ANS ="";
     static public Long RESULT_START =0l;
     static public Long RESULT_END =0l;
+    static public int COGNITIVE_LOAD = 0;
 
     static public String END="";
     static public String isCorrect="";

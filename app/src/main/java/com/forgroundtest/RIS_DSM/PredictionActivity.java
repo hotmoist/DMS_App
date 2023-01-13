@@ -128,6 +128,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private ImageButton testToCogIncre;
     private ImageButton testToCogDecre;
     private int count = 145;
+    private boolean isTransition;
 
     private Button soundTestBtn;
 
@@ -202,6 +203,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         csvBtn = findViewById(R.id.start_csv);
         csvBtn.setOnClickListener(view -> {
             startCsvButton();
+            onStartCogChange();
         });
 
         // 아두이노 보드(bluno)를 scan 하기 위한 버튼
@@ -246,23 +248,19 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 if (!isSafe()) {
                     return; // 안정된 인지부하인 경우에만 영어 학습 어플로 넘어가기
                 }
-                fTran = fm.beginTransaction();
-                fTran.replace(R.id.englishApp, englishAppFragment);
-                fTran.commit();
-
+                turnOnEngPrag();
             }
         });
 
         backToPrediction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fTran = fm.beginTransaction();
-                fTran.replace(R.id.englishApp, beforeAppFragment);
-                fTran.commit();
+                turnOnBasicPrag();
             }
         });
-        
-        onStartCogChange();
+
+        setIsTransition(false);
+
         testToCogIncre = findViewById(R.id.test_to_cog_incre);
         testToCogIncre.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -290,9 +288,13 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 
                 // 인지부하량이 최적보다 높으면 영어학습 어플 강제 중지
                 if (!isSafe()) {
-                    fTran = fm.beginTransaction();
-                    fTran.replace(R.id.englishApp, beforeAppFragment);
-                    fTran.commit();
+                    turnOnBasicPrag();
+                    setIsTransition(false);
+                } else {
+                    if (!isTransition()) {
+                        turnOnEngPrag();
+                        setIsTransition(true);
+                    }
                 }
             }
         };
@@ -307,7 +309,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
          * 100 등의 인지부하 연산 결과값을 작성으로 함수 마무리
          */
         int cognitiveLoad = onCalculate();
-        onChangeCogLoad();
+        onChangeCogLoad(count);
         setCognitiveLoadVal(count);
     }
 
@@ -317,12 +319,37 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         return 0;
     }
 
-    private void onChangeCogLoad() {
+    private void onChangeCogLoad(int cognitiveLoad) {
         // todo 인지부하가 1초마다 어떻게 변하는지 csv에 별도 저장하는 코드 필요
+        Value.COGNITIVE_LOAD = cognitiveLoad;
     }
 
     private boolean isSafe() {
         return cognitiveLoadVal() <= OPTIMAL_COGNITIVE_LOAD;
+    }
+
+    private void turnOnBasicPrag() {
+        fTran = fm.beginTransaction();
+        fTran.replace(R.id.englishApp, beforeAppFragment);
+        fTran.commit();
+        onHideBtn(View.VISIBLE);
+    }
+
+    private void turnOnEngPrag() {
+        fTran = fm.beginTransaction();
+        fTran.replace(R.id.englishApp, englishAppFragment);
+        fTran.commit();
+        onHideBtn(View.INVISIBLE);
+    }
+
+    private void onHideBtn(int hideOrNot) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scanBtn.setVisibility(hideOrNot);
+                soundTestBtn.setVisibility(hideOrNot);
+            }
+        });
     }
 
     /**
@@ -534,6 +561,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     public void setCognitiveLoadVal(int cognitiveLoadVal) {
         this.cognitiveLoadVal = cognitiveLoadVal;
         mDatabase.child("study").child("test").child("realTimeCognitiveLoad").setValue(cognitiveLoadVal());
+    }
+
+
+    public boolean isTransition() {
+        return isTransition;
+    }
+
+    public void setIsTransition(boolean transition) {
+        isTransition = transition;
     }
 
     @Override

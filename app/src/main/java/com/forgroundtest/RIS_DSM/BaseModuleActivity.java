@@ -281,7 +281,9 @@ public class BaseModuleActivity extends BlunoLibrary {
                                         +Value.GYRO_X + "",
                                         +Value.GYRO_Y + "",
                                         +Value.GYRO_Z + "",
-                                        Value.RESULT
+                                        Value.RESULT,
+                                        "",
+                                        Value.COGNITIVE_LOAD + ""
                                 }
                         );
                         /**
@@ -368,7 +370,7 @@ public class BaseModuleActivity extends BlunoLibrary {
                 Value.delayToSpeak + "",
                 Value.delayDuringSpeak + "",
         });
-        String[] category = {"TIME", "SPEED", "ACC", "GYRO_X", "GYRO_Y", "GYRO_Z", "RESULT", "RESPONSE"};
+        String[] category = {"TIME", "SPEED", "ACC", "GYRO_X", "GYRO_Y", "GYRO_Z", "RESULT", "RESPONSE", "COGNITIVE"};
         writer.writeNext(category);
 
     }
