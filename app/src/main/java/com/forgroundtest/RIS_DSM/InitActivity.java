@@ -59,7 +59,7 @@ public class InitActivity extends AppCompatActivity {
         findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, PredictionActivity.class) ));
 
         // index init
-        EnglishAppFragment.engIdx = 0;
+        EnglishAppFragment.setEngIdx(0);
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         backBtn = findViewById(R.id.backbutton);
         backBtn.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +74,6 @@ public class InitActivity extends AppCompatActivity {
         mDatabase.child("study").child("isNBackTest").setValue(false);
 
         EnglishAppFragment.engIdx = 0;
-        EnglishAppFragment.nBackIdx = 0;
 
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override

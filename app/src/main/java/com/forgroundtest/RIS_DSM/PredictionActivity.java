@@ -106,7 +106,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mGyroValue;
 
     private com.google.android.material.button.MaterialButton appStartingBtn;
-    private ImageButton backToPrediction;
+    public static ImageButton backToPrediction;
     private ConstraintLayout englishAppView;
     private BeforeAppFragment beforeAppFragment;
     private EnglishAppFragment englishAppFragment;
@@ -127,7 +127,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TimerTask timerTask;
     private ImageButton testToCogIncre;
     private ImageButton testToCogDecre;
-    private int count = 145;
+
     private boolean isTransition;
 
     private Button soundTestBtn;
@@ -203,7 +203,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         csvBtn = findViewById(R.id.start_csv);
         csvBtn.setOnClickListener(view -> {
             startCsvButton();
-            onStartCogChange();
+            onStartFragChange();
         });
 
         // 아두이노 보드(bluno)를 scan 하기 위한 버튼
@@ -231,36 +231,12 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
 
         // 빈 frag와 영어학습 어플리케이션과의 화면 전환
-        englishAppView = findViewById(R.id.englishAppView);
-        englishAppView.setRotation(270.0f);
-        appStartingBtn = findViewById(R.id.appStartingBtn);
-        backToPrediction = findViewById(R.id.backToPrediction);
-        fm = getSupportFragmentManager();
-        fTran = fm.beginTransaction();
-        beforeAppFragment = new BeforeAppFragment();
-        englishAppFragment = new EnglishAppFragment();
-        fTran.add(R.id.englishApp, beforeAppFragment);
-        fTran.commit();
-
-        appStartingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!isSafe()) {
-                    return; // 안정된 인지부하인 경우에만 영어 학습 어플로 넘어가기
-                }
-                turnOnEngPrag();
-            }
-        });
-
-        backToPrediction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                turnOnBasicPrag();
-            }
-        });
-
+        onSetFragment();
+        onClickRunBtn();
+        onClickBackBtn();
         setIsTransition(false);
 
+        // test용 upDown Button
         testToCogIncre = findViewById(R.id.test_to_cog_incre);
         testToCogIncre.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -279,49 +255,24 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         });
     }
 
-    private void onStartCogChange() {
+    private void onStartFragChange() {
         timer = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
-                onCalculateCogLoad();
-                
-                // 인지부하량이 최적보다 높으면 영어학습 어플 강제 중지
                 if (!isSafe()) {
                     turnOnBasicPrag();
                     setIsTransition(false);
                 } else {
                     if (!isTransition()) {
-                        turnOnEngPrag();
                         setIsTransition(true);
                     }
+                    turnOnEngPrag();
                 }
             }
         };
-        
-        timer.schedule(timerTask, 0, UNIT_TIME);
-    }
 
-    private void onCalculateCogLoad() {
-        /**
-         * todo 인지부하식 작성 함수
-         * 파라미터가 필요하면 작성하3
-         * 100 등의 인지부하 연산 결과값을 작성으로 함수 마무리
-         */
-        int cognitiveLoad = onCalculate();
-        onChangeCogLoad(count);
-        setCognitiveLoadVal(count);
-    }
-
-    private int onCalculate() {
-        // 인지부하 연산.
-
-        return 0;
-    }
-
-    private void onChangeCogLoad(int cognitiveLoad) {
-        // todo 인지부하가 1초마다 어떻게 변하는지 csv에 별도 저장하는 코드 필요
-        Value.COGNITIVE_LOAD = cognitiveLoad;
+        timer.schedule(timerTask, 0, 1000);
     }
 
     private boolean isSafe() {
@@ -555,11 +506,10 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     }
 
     public int cognitiveLoadVal() {
-        return cognitiveLoadVal;
+        return Value.COGNITIVE_LOAD;
     }
 
     public void setCognitiveLoadVal(int cognitiveLoadVal) {
-        this.cognitiveLoadVal = cognitiveLoadVal;
         mDatabase.child("study").child("test").child("realTimeCognitiveLoad").setValue(cognitiveLoadVal());
     }
 
@@ -570,6 +520,39 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
     public void setIsTransition(boolean transition) {
         isTransition = transition;
+    }
+
+    private void onSetFragment() {
+        englishAppView = findViewById(R.id.englishAppView);
+        englishAppView.setRotation(270.0f);
+        appStartingBtn = findViewById(R.id.appStartingBtn);
+        backToPrediction = findViewById(R.id.backToPrediction);
+        fm = getSupportFragmentManager();
+        fTran = fm.beginTransaction();
+        beforeAppFragment = new BeforeAppFragment();
+        englishAppFragment = new EnglishAppFragment();
+        fTran.add(R.id.englishApp, beforeAppFragment);
+        fTran.commit();
+    }
+
+    private void onClickRunBtn() {
+        appStartingBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isSafe()) {
+                    return; // 안정된 인지부하인 경우에만 영어 학습 어플로 넘어가기
+                }
+                turnOnEngPrag();
+            }
+        });
+    }
+    private void onClickBackBtn() {
+        backToPrediction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                turnOnBasicPrag();
+            }
+        });
     }
 
     @Override

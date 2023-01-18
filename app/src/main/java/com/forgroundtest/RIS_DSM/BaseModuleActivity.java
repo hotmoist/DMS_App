@@ -104,6 +104,7 @@ public class BaseModuleActivity extends BlunoLibrary {
      * firebase 변수
      */
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    public static int count = 145;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -274,6 +275,8 @@ public class BaseModuleActivity extends BlunoLibrary {
                 timerTask = new TimerTask() {
                     @Override
                     public void run() {
+                        onStartCogChange();
+
                         writer.writeNext(new String[]{
                                         getCurrentDateTime().toString(),
                                         +Value.SPEED + "",
@@ -342,6 +345,31 @@ public class BaseModuleActivity extends BlunoLibrary {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void onStartCogChange() {
+        onCalculateCogLoad();
+    }
+
+    private void onCalculateCogLoad() {
+        /**
+         * todo 인지부하식 작성 함수
+         * 파라미터가 필요하면 작성하3
+         * 100 등의 인지부하 연산 결과값을 작성으로 함수 마무리
+         */
+        int cognitiveLoad = onCalculate();
+        // setChangeCogLoad(cognitiveLoad);
+        setChangeCogLoad(count);
+    }
+
+    private int onCalculate() {
+        // 인지부하 연산.
+
+        return 0;
+    }
+
+    private void setChangeCogLoad(int cognitiveLoad) {
+        Value.COGNITIVE_LOAD = cognitiveLoad;
     }
 
     public void startDataToCsv(String path) throws IOException {
