@@ -202,7 +202,9 @@ public class EnglishAppFragment extends Fragment {
                 if(!check()) {
                     long blankSpeakTime = System.currentTimeMillis() - blankTime();
                     if (blankSpeakTime > 5000) {
-                        if (isEng()) setEngIdx(engIdx()-1);
+                        if (isEng()) {
+                            setIsEng(false);
+                        }
                         PredictionActivity.backToPrediction.callOnClick();
                     }
                     Log.e("ORDER", (blankSpeakTime) + "");
@@ -227,8 +229,9 @@ public class EnglishAppFragment extends Fragment {
                     setIsEng(false);
                     follow.setText("");
                     onContinue();
+                    setEngIdx(engIdx()+1);
                 } else {
-                    if (contents().onCheckContinue(str.get(0), engIdx())) return;
+                    if (contents().onCheckContinue(str.get(0))) return;
                     PredictionActivity.backToPrediction.callOnClick();
                 }
                 Log.e("ORDER", "result");
@@ -248,8 +251,8 @@ public class EnglishAppFragment extends Fragment {
 
     private void onContinue() {
         onClearUI();
-        follow.setText("계속 학습을 진행하려면 다음 음성을 따라해주세요.");
-        onSpeakTTS(contents().onSetContinueTest(engIdx()-1));
+        follow.setText("계속 학습을 진행하겠습니까?");
+        onSpeakTTS(contents().continueTest());
     }
 
     // Initialize the tts service.
@@ -310,8 +313,12 @@ public class EnglishAppFragment extends Fragment {
     private void onStartListenSTT() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
+        if (isEng()) {
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en_US");
+        } else {
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko_KR");
+        }
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
         speechToText().startListening(intent);
     }
@@ -327,7 +334,12 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    int result = textToSpeech().setLanguage(Locale.ENGLISH);
+                    int result;
+                    if (isEng()) {
+                        result = textToSpeech().setLanguage(Locale.ENGLISH);
+                    } else {
+                        result = textToSpeech().setLanguage(Locale.KOREA);
+                    }
                     if (result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA) {
                         Log.e("TTS", "This Language is not supported");
                     } else {
@@ -360,7 +372,6 @@ public class EnglishAppFragment extends Fragment {
         follow.setText("");
         speechSct.setText(contents().onSetEnglish(engIdx()));
         firstKor.setText(contents().onSetKorean(engIdx()));
-        setEngIdx(engIdx()+1);
     }
 
     private void onUIReadyToSpeak() {
@@ -509,6 +520,7 @@ public class EnglishAppFragment extends Fragment {
     public void onStart() {
         super.onStart();
 //        speak(speechSct.getText().toString());
+        onContinue();
     }
 
     @Override
