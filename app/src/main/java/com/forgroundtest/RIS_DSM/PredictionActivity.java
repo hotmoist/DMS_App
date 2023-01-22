@@ -189,8 +189,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 //        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
-        lp.height = 650;
-        lp.width = 584;
+//        lp.height = 650;
+//        lp.width = 584;
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
