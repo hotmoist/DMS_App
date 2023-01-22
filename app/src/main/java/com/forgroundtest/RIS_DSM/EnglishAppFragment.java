@@ -156,7 +156,7 @@ public class EnglishAppFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_english_app, container, false);
 
-        appStartBtn = getActivity().findViewById(R.id.appStartingBtn);
+//        appStartBtn = getActivity().findViewById(R.id.appStartingBtn);
         appStartBtn.setVisibility(View.INVISIBLE);
 
         speechSct = rootView.findViewById(R.id.speechScript);

@@ -197,65 +197,65 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
 
-        fileNameEdit = findViewById(R.id.CSV_name);
-        csvBtn = findViewById(R.id.start_csv);
-        csvBtn.setOnClickListener(view -> {
-            startCsvButton();
-        });
+//        fileNameEdit = findViewById(R.id.CSV_name);
+//        csvBtn = findViewById(R.id.start_csv);
+//        csvBtn.setOnClickListener(view -> {
+//            startCsvButton();
+//        });
 
         // 아두이노 보드(bluno)를 scan 하기 위한 버튼
-        scanBtn = findViewById(R.id.scanBtn);
-        scanBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonScanOnClickProcess();
-            }
-        });
+//        scanBtn = findViewById(R.id.scanBtn);
+//        scanBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                buttonScanOnClickProcess();
+//            }
+//        });
 
         /**----- serial communication test via sound test -----**/
 
         //TODO : fragment 또는
-        soundTestBtn = findViewById(R.id.soundTestBtn);
-        soundTestBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                serialSend("1");
-            }
-        });
+//        soundTestBtn = findViewById(R.id.soundTestBtn);
+//        soundTestBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                serialSend("1");
+//            }
+//        });
 
 
         /**--------------------------------------------------- **/
 
 
         // 빈 frag와 영어학습 어플리케이션과의 화면 전환
-        englishAppView = findViewById(R.id.englishAppView);
-        englishAppView.setRotation(270.0f);
-        appStartingBtn = findViewById(R.id.appStartingBtn);
-        backToPrediction = findViewById(R.id.backToPrediction);
+//        englishAppView = findViewById(R.id.englishAppView);
+//        englishAppView.setRotation(270.0f);
+//        appStartingBtn = findViewById(R.id.appStartingBtn);
+//        backToPrediction = findViewById(R.id.backToPrediction);
         fm = getSupportFragmentManager();
         fTran = fm.beginTransaction();
         beforeAppFragment = new BeforeAppFragment();
         englishAppFragment = new EnglishAppFragment();
-        fTran.add(R.id.englishApp, beforeAppFragment);
+//        fTran.add(R.id.englishApp, beforeAppFragment);
         fTran.commit();
 
-        appStartingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fTran = fm.beginTransaction();
-                fTran.replace(R.id.englishApp, englishAppFragment);
-                fTran.commit();
-            }
-        });
+//        appStartingBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                fTran = fm.beginTransaction();
+////                fTran.replace(R.id.englishApp, englishAppFragment);
+//                fTran.commit();
+//            }
+//        });
 
-        backToPrediction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                fTran = fm.beginTransaction();
-                fTran.replace(R.id.englishApp, beforeAppFragment);
-                fTran.commit();
-            }
-        });
+//        backToPrediction.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                fTran = fm.beginTransaction();
+////                fTran.replace(R.id.englishApp, beforeAppFragment);
+//                fTran.commit();
+//            }
+//        });
     }
 
     /**

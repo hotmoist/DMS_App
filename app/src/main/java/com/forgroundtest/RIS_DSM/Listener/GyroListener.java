@@ -3,6 +3,7 @@ package com.forgroundtest.RIS_DSM.Listener;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.forgroundtest.RIS_DSM.Filter.KalmanFilter;
@@ -36,6 +37,8 @@ public class GyroListener implements SensorEventListener {
         Value.GYRO_X = filteredX;
         Value.GYRO_Y = filteredY;
         Value.GYRO_Z = filteredZ;
+        Log.d("Sensor",Value.GYRO_X+""+Value.GYRO_Y+""+Value.GYRO_Z+"");
+
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

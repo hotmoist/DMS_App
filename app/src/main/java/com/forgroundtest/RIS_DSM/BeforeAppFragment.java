@@ -63,7 +63,7 @@ public class BeforeAppFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_before_app, container, false);
 
-        getActivity().findViewById(R.id.appStartingBtn).setVisibility(View.VISIBLE);
+//        getActivity().findViewById(R.id.appStartingBtn).setVisibility(View.VISIBLE);
 
         return rootView;
     }

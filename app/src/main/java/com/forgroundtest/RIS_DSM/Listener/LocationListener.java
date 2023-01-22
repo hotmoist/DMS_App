@@ -5,6 +5,7 @@ import android.location.Location;
 import android.location.LocationRequest;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -41,6 +42,8 @@ public class LocationListener implements android.location.LocationListener {
         /**
          * speed ui 변경
          */
+        Log.d("Sensor_Speed",Value.SPEED+""+Value.ACC);
+
     }
 
     @Override
