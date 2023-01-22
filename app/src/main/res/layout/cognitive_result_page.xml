@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
+    android:layout_gravity="center"
+    android:gravity="center"
     android:orientation="vertical">
 
         <LinearLayout
@@ -14,12 +16,12 @@
             >
         <TextView
             android:text="[Predicted Label]"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textColor="@color/white"
             android:gravity="left"
-            android:layout_weight="1"
             android:layout_marginLeft="10dp"
+            android:textSize="18dp"
             />
         <TextView
             android:id="@+id/prediction_result_textview"
@@ -30,20 +32,24 @@
             android:gravity="right"
             android:layout_weight="1"
             android:layout_marginRight="10dp"
+            android:textSize="18dp"
             />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="[DRIVER_CONDITION]"
                     android:textColor="@color/white"
                     android:gravity="left"
-                    android:layout_weight="1"
                     android:layout_marginLeft="10dp"
+                    android:textSize="18dp"
                     />
                 <TextView
                     android:id="@+id/driver_condition"
@@ -54,20 +60,24 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="[DRIVER_SKILL]"
                     android:textColor="@color/white"
                     android:gravity="left"
-                    android:layout_weight="1"
                     android:layout_marginLeft="10dp"
+                    android:textSize="18dp"
                     />
                 <TextView
                     android:id="@+id/driver_skill"
@@ -78,20 +88,24 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="[SPEED]"
                     android:textColor="@color/white"
                     android:gravity="left"
-                    android:layout_weight="1"
                     android:layout_marginLeft="10dp"
+                    android:textSize="18dp"
                     />
                 <TextView
                     android:id="@+id/speed_textview"
@@ -102,20 +116,24 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="[GYROSCOPE]"
                     android:textColor="@color/white"
                     android:gravity="left"
-                    android:layout_weight="1"
                     android:layout_marginLeft="10dp"
+                    android:textSize="18dp"
                     />
                 <TextView
                     android:id="@+id/gyro_textview"
@@ -126,20 +144,24 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
                     android:text="[Cognitive capability]"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="@color/white"
                     android:gravity="left"
-                    android:layout_weight="1"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:textSize="18dp"/>
                 <TextView
                     android:id="@+id/cognitive_capability_textview"
                     android:layout_width="match_parent"
@@ -149,20 +171,24 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             >
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="@color/white"
                     android:text="[Calculated result]"
                     android:gravity="left"
-                    android:layout_weight="1"
                     android:layout_marginLeft="10dp"
+                    android:textSize="18dp"
                     />
                 <TextView
                     android:id="@+id/result_textview"
@@ -173,6 +199,7 @@
                     android:gravity="right"
                     android:layout_weight="1"
                     android:layout_marginRight="10dp"
+                    android:textSize="18dp"
                     />
         </LinearLayout>
     </LinearLayout>

@@ -185,7 +185,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
 
         layout.setRotation(270.0f);
-        layout.setTranslationX(-157);
+//        layout.setTranslationX(-157);
 //        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
