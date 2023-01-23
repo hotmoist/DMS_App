@@ -30,6 +30,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -43,6 +44,7 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
@@ -118,6 +120,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mSpeed;
     private TextView mGyroName;
     private TextView mGyroValue;
+    private TextView mCognitiveLoad;
 
     private com.google.android.material.button.MaterialButton appStartingBtn;
     private ImageButton backToPrediction;
@@ -130,6 +133,13 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
     private Button soundTestBtn;
 
+    DisplayMetrics metrics;
+    int screenHeight;
+    int screenWidth;
+    double gyro;
+    double acc;
+    double speed;
+
     @Override
     protected int getContentViewLayoutId() {
         return R.layout.activity_prediction;
@@ -139,6 +149,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     protected TextureView getCameraPreviewTextureView() {
         mResultView = findViewById(R.id.prediction_result_view);
         mResultView.setRotation(270.0f);
+
+        metrics = getResources().getDisplayMetrics();
+
+        screenHeight = metrics.heightPixels;
+        screenWidth = metrics.widthPixels;
 
         int w = mResultView.getWidth();
         int h = mResultView.getHeight();
@@ -189,14 +204,14 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 //        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
-//        lp.height = 650;
-//        lp.width = 584;
+        lp.height = screenWidth;
+        lp.width = screenHeight - (int)dp2px(300);
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
-
+        mCognitiveLoad = findViewById(R.id.result_textview);
 //        fileNameEdit = findViewById(R.id.CSV_name);
 //        csvBtn = findViewById(R.id.start_csv);
 //        csvBtn.setOnClickListener(view -> {
@@ -458,6 +473,18 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 String.format("X : %.2f ", Value.GYRO_X) +
                         String.format("Y : %.2f ", Value.GYRO_Y) +
                         String.format("Z : %.2f ", Value.GYRO_Z));
+        /**
+         * 인지부하 식 넣기
+         * Value에서 가져오기
+         */
+        gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
+        acc = Value.ACC;
+        speed = Value.SPEED;
+        Log.d("score",gyro+""+acc+""+speed);
+        double cognitiveLoad =
+                (getResultweight(result.mResults.toString()) // 운전자 상태에 따른 가중치
+                        *(gyro+acc+speed));
+        mCognitiveLoad.setText(""+cognitiveLoad);
     }
 
     @Override
@@ -493,5 +520,24 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         onStopProcess();
     }
 
+    public float dp2px(float dp){
+        Resources resources = this.getResources();
+        DisplayMetrics metrics = resources.getDisplayMetrics();
+        float px = dp * ((float)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
+        return px;
+    }
 
+    public double getResultweight(String result){
+        double weight=0;
+        switch(result){
+            case "safe":
+                return weight=1;
+            case "drowsy driving":
+                return weight=1.5;
+            case "operate something":
+                return weight=2;
+            default:
+                return weight=0;
+        }
+    }
 }
