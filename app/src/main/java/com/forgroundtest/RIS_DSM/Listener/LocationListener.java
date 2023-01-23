@@ -42,7 +42,7 @@ public class LocationListener implements android.location.LocationListener {
         /**
          * speed ui 변경
          */
-        Log.d("Sensor_Speed",Value.SPEED+""+Value.ACC);
+//        Log.d("Sensor_Speed",Value.SPEED+""+Value.ACC);
 
     }
 

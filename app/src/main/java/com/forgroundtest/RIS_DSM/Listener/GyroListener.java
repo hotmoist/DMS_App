@@ -37,7 +37,7 @@ public class GyroListener implements SensorEventListener {
         Value.GYRO_X = filteredX;
         Value.GYRO_Y = filteredY;
         Value.GYRO_Z = filteredZ;
-        Log.d("Sensor",Value.GYRO_X+""+Value.GYRO_Y+""+Value.GYRO_Z+"");
+//        Log.d("Sensor",Value.GYRO_X+""+Value.GYRO_Y+""+Value.GYRO_Z+"");
 
     }
     @Override
