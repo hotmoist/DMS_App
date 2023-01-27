@@ -104,57 +104,57 @@ public class BaseModuleActivity extends BlunoLibrary {
      * firebase 변수
      */
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-    public static int count = 145;
+    public static int count = 65;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUIHandler = new Handler(getMainLooper());
 
-        checkPermissions();
+//        checkPermissions();
         resistSensor();
         resistGyroSensor();
         resistSTT();
         resistLocation();
     }
 
-    private void checkPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-
-                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
-                builder.setMessage("어플리케이션이 블루투스를 감지 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
-                builder.setPositiveButton(android.R.string.ok, null);
-
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
-                    }
-                });
-                builder.show();
-            }
-
-            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-
-                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
-                builder.setMessage("어플리케이션이 블루투스를 연결 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
-                builder.setPositiveButton(android.R.string.ok, null);
-
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 3);
-                    }
-                });
-                builder.show();
-            }
-        }
-    }
+//    private void checkPermissions() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+//                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+//
+//                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
+//                builder.setMessage("어플리케이션이 블루투스를 감지 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
+//                builder.setPositiveButton(android.R.string.ok, null);
+//
+//                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//
+//                    @Override
+//                    public void onDismiss(DialogInterface dialog) {
+//                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
+//                    }
+//                });
+//                builder.show();
+//            }
+//
+//            if (this.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//                final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
+//
+//                builder.setTitle("블루투스에 대한 액세스가 필요합니다");
+//                builder.setMessage("어플리케이션이 블루투스를 연결 할 수 있도록 위치 정보 액세스 권한을 부여하십시오.");
+//                builder.setPositiveButton(android.R.string.ok, null);
+//
+//                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//
+//                    @Override
+//                    public void onDismiss(DialogInterface dialog) {
+//                        requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 3);
+//                    }
+//                });
+//                builder.show();
+//            }
+//        }
+//    }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -357,18 +357,18 @@ public class BaseModuleActivity extends BlunoLibrary {
          * 파라미터가 필요하면 작성하3
          * 100 등의 인지부하 연산 결과값을 작성으로 함수 마무리
          */
-        int cognitiveLoad = onCalculate();
+        double cognitiveLoad = onCalculate();
         // setChangeCogLoad(cognitiveLoad);
         setChangeCogLoad(count);
     }
 
-    private int onCalculate() {
+    private double onCalculate() {
         // 인지부하 연산.
 
         return 0;
     }
 
-    private void setChangeCogLoad(int cognitiveLoad) {
+    private void setChangeCogLoad(double cognitiveLoad) {
         Value.COGNITIVE_LOAD = cognitiveLoad;
     }
 

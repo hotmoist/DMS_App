@@ -73,7 +73,7 @@ public class InitActivity extends AppCompatActivity {
         mDatabase.child("study").child("isEnglishTest").setValue(false);
         mDatabase.child("study").child("isNBackTest").setValue(false);
 
-        EnglishAppFragment.engIdx = 0;
+        EnglishAppFragment.engIdx = 1;
 
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -107,23 +107,23 @@ public class InitActivity extends AppCompatActivity {
             }
         });
 
-        requestRecordAudioPermission();
+//        requestRecordAudioPermission();
 
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         audioManager.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
     }
 
-    private void requestRecordAudioPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String requiredPermission = Manifest.permission.RECORD_AUDIO;
-
-            // If the user previously denied this permission then show a message explaining why
-            // this permission is needed
-            if (checkCallingOrSelfPermission(requiredPermission) == PackageManager.PERMISSION_DENIED) {
-                requestPermissions(new String[]{requiredPermission}, 101);
-            }
-        }
-    }
+//    private void requestRecordAudioPermission() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            String requiredPermission = Manifest.permission.RECORD_AUDIO;
+//
+//            // If the user previously denied this permission then show a message explaining why
+//            // this permission is needed
+//            if (checkCallingOrSelfPermission(requiredPermission) == PackageManager.PERMISSION_DENIED) {
+//                requestPermissions(new String[]{requiredPermission}, 101);
+//            }
+//        }
+//    }
 
     private void ttsInitialize() {
         tts.setSpeechRate(1.50f);

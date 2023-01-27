@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -116,9 +117,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     /**
      * 인지부하식 연산 관련 변수
      */
-    private int cognitiveLoadVal;
-    private static final int OPTIMAL_COGNITIVE_LOAD = 150; // 적정 인지부하량
-    private static final int UNIT_TIME = 1000;
+    private double cognitiveLoadVal;
+    private static final double OPTIMAL_COGNITIVE_LOAD_MAX = 70.0; // 적정 인지부하량
 
     // firebase 관련 변수
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -269,6 +269,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                     }
                     turnOnEngPrag();
                 }
+                onChangeBackGroundColor(cognitiveLoadVal());
             }
         };
 
@@ -276,7 +277,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     }
 
     private boolean isSafe() {
-        return cognitiveLoadVal() <= OPTIMAL_COGNITIVE_LOAD;
+        return cognitiveLoadVal() <= OPTIMAL_COGNITIVE_LOAD_MAX;
     }
 
     private void turnOnBasicPrag() {
@@ -301,6 +302,31 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 soundTestBtn.setVisibility(hideOrNot);
             }
         });
+    }
+
+    @SuppressLint("ResourceAsColor")
+    public void onChangeBackGroundColor(double cogNum) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (onCheckOverCog(cogNum)) {
+                    onChangeColor("#ff0000");
+                } else {
+                    onChangeColor("#229922");
+                }
+            }
+        });
+    }
+
+    private void onChangeColor(String colorString) {
+        int color = Color.parseColor(colorString);
+        findViewById(R.id.prediction).setBackgroundColor(color);
+        findViewById(R.id.cognitive_result_layout).setBackgroundColor(color);
+        findViewById(R.id.backToPrediction).setBackgroundColor(color);
+    }
+
+    private boolean onCheckOverCog(double cogNum) {
+        return cogNum > OPTIMAL_COGNITIVE_LOAD_MAX;
     }
 
     /**
@@ -505,7 +531,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                         String.format("Z : %.2f ", Value.GYRO_Z));
     }
 
-    public int cognitiveLoadVal() {
+    public double cognitiveLoadVal() {
         return Value.COGNITIVE_LOAD;
     }
 

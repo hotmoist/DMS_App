@@ -40,7 +40,7 @@ import java.util.Locale;
  */
 public class EnglishAppFragment extends Fragment {
 
-    public static int engIdx = 0;
+    public static int engIdx = 1;
     public static boolean isEng = false;
     public static boolean isnBack = false;
     public static Button exampi;
@@ -231,8 +231,15 @@ public class EnglishAppFragment extends Fragment {
                     onContinue();
                     setEngIdx(engIdx()+1);
                 } else {
-                    if (contents().onCheckContinue(str.get(0))) return;
-                    PredictionActivity.backToPrediction.callOnClick();
+                    int answer = contents().onCheckContinue(str.get(0));
+                    if (answer > 0) {
+                        setIsEng(true);
+                        onTurnPage();
+                    } else if (answer < 0) {
+                        PredictionActivity.backToPrediction.callOnClick();
+                    } else {
+                        onSpeakTTS(contents().againTest());
+                    }
                 }
                 Log.e("ORDER", "result");
             }
