@@ -145,7 +145,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     double gyro;
     double acc;
     double speed;
-    double testScore=50;
+    double testScore=1;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -227,14 +227,14 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testScore+=10;
+                testScore=1;
             }
         });
         down = findViewById(R.id.down);
         down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                testScore-=10;
+                testScore=1.2;
             }
         });
 //        fileNameEdit = findViewById(R.id.CSV_name);
@@ -505,7 +505,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         speed = Value.SPEED;
         Log.d("score",gyro+""+acc+""+speed);
         double cognitiveLoad =
-                (getResultweight(mResultText.getText().toString())*100// 운전자 상태에 따른 가중치
+                testScore * (getResultweight(mResultText.getText().toString())*100// 운전자 상태에 따른 가중치
                         +(gyro*100+Math.abs(acc)+speed));
 
         mCognitiveLoad.setText(""+(int)cognitiveLoad);
