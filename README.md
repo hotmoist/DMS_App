@@ -1,5 +1,5 @@
-# DSM_App
-DSM with cognitive resource calculation
+# DMS_App
+DMS with cognitive resource calculation
 
 ### 💥그라운드 규칙💥
 ```
