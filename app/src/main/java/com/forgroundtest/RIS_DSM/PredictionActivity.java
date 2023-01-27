@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.*;
 
+import androidx.annotation.IntegerRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
@@ -121,6 +122,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mGyroName;
     private TextView mGyroValue;
     private TextView mCognitiveLoad;
+    private TextView mdriverState;
+    private TextView mCognitiveCapability;
+
+    private Button up;
+    private Button down;
 
     private com.google.android.material.button.MaterialButton appStartingBtn;
     private ImageButton backToPrediction;
@@ -129,7 +135,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private EnglishAppFragment englishAppFragment;
     private FragmentManager fm;
     private FragmentTransaction fTran;
-
+    private androidx.constraintlayout.widget.ConstraintLayout predictionView;
 
     private Button soundTestBtn;
 
@@ -139,6 +145,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     double gyro;
     double acc;
     double speed;
+    double testScore=50;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -212,6 +219,24 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
         mCognitiveLoad = findViewById(R.id.result_textview);
+        predictionView = findViewById(R.id.prediction_view);
+        mdriverState = findViewById(R.id.driver_state);
+        mCognitiveCapability = findViewById(R.id.cognitive_capability_textview);
+
+        up = findViewById(R.id.up);
+        up.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                testScore+=10;
+            }
+        });
+        down = findViewById(R.id.down);
+        down.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                testScore-=10;
+            }
+        });
 //        fileNameEdit = findViewById(R.id.CSV_name);
 //        csvBtn = findViewById(R.id.start_csv);
 //        csvBtn.setOnClickListener(view -> {
@@ -469,22 +494,29 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         mResultView.setResults(result.mResults);
         mResultView.invalidate();
         mSpeed.setText(String.format("%.2f km/h", Value.SPEED));
+        gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
         mGyroValue.setText(
-                String.format("X : %.2f ", Value.GYRO_X) +
-                        String.format("Y : %.2f ", Value.GYRO_Y) +
-                        String.format("Z : %.2f ", Value.GYRO_Z));
+                String.format("%.2f ", gyro) );
         /**
          * 인지부하 식 넣기
          * Value에서 가져오기
          */
-        gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
         acc = Value.ACC;
         speed = Value.SPEED;
         Log.d("score",gyro+""+acc+""+speed);
         double cognitiveLoad =
-                (getResultweight(result.mResults.toString()) // 운전자 상태에 따른 가중치
-                        *(gyro+acc+speed));
-        mCognitiveLoad.setText(""+cognitiveLoad);
+                (getResultweight(mResultText.getText().toString())*100// 운전자 상태에 따른 가중치
+                        +(gyro*100+Math.abs(acc)+speed));
+
+        mCognitiveLoad.setText(""+(int)cognitiveLoad);
+        mdriverState.setText(""+getResultweight(mResultText.getText().toString()));
+        if(cognitiveLoad>200){
+            predictionView.setBackgroundColor(Color.parseColor("#ff0000"));
+            mCognitiveCapability.setText("HIGHT");
+        }else{
+            predictionView.setBackgroundColor(Color.parseColor("#229922"));
+            mCognitiveCapability.setText("LOW");
+        }
     }
 
     @Override
@@ -528,16 +560,29 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     }
 
     public double getResultweight(String result){
+//        safe
+//drowsy driving
+//drinking
+//operate something
+//phone
         double weight=0;
-        switch(result){
-            case "safe":
-                return weight=1;
-            case "drowsy driving":
-                return weight=1.5;
-            case "operate something":
-                return weight=2;
-            default:
-                return weight=0;
+        if(result.equals("safe")) {
+            weight = 1;
         }
+        else if(result.equals("drowsy driving")) {
+            weight = 2.1;
+        }
+        else if(result.equals("drinking")) {
+            weight = 1.2;
+        }
+        else if(result.equals("operate something")) {
+            weight = 1.4;
+        }
+        else if(result.equals("phone")) {
+            weight = 1.35;
+        }
+        Log.d("predicted",result+" "+weight);
+        return weight;
+
     }
 }
