@@ -1,5 +1,7 @@
 package com.forgroundtest.RIS_DSM;
 
+import static androidx.camera.core.CameraX.getContext;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,6 +45,7 @@ import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.speech.tts.TextToSpeech;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -138,6 +141,9 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private androidx.constraintlayout.widget.ConstraintLayout predictionView;
 
     private Button soundTestBtn;
+
+    private TextToSpeech textToSpeech = null;
+    boolean check =false;
 
     DisplayMetrics metrics;
     int screenHeight;
@@ -296,6 +302,33 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 //                fTran.commit();
 //            }
 //        });
+
+    }
+    @SuppressLint("RestrictedApi")
+    private String speak(String text) {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+
+        textToSpeech = new TextToSpeech(getContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    int result = textToSpeech.setLanguage(Locale.ENGLISH);
+                    if (result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA) {
+                        Log.e("TTS", "This Language is not supported");
+                    } else {
+                        textToSpeech.setSpeechRate(1.50f);
+                        textToSpeech.setLanguage(Locale.KOREAN);
+                        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
+                    }
+                } else {
+                    Log.e("TTS", "Initialization Failed!");
+                }
+            }
+        });
+        return text;
     }
 
     /**
@@ -513,9 +546,14 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         if(cognitiveLoad>200){
             predictionView.setBackgroundColor(Color.parseColor("#ff0000"));
             mCognitiveCapability.setText("HIGHT");
+            if(!check){
+                speak("말해보세요");
+                check=true;
+            }
         }else{
             predictionView.setBackgroundColor(Color.parseColor("#229922"));
             mCognitiveCapability.setText("LOW");
+            check=false;
         }
     }
 
