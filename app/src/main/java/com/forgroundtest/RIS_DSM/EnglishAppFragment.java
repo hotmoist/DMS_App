@@ -63,6 +63,7 @@ public class EnglishAppFragment extends Fragment {
     private TextView progress;
     private TextView follow;
     private TextView postSpeech;
+    private TextView followEng;
     private ImageButton blindBtn;
     private ImageButton correct;
     private LinearLayout something;
@@ -176,6 +177,7 @@ public class EnglishAppFragment extends Fragment {
             @Override
             public void onReadyForSpeech(Bundle bundle) {
                 Log.e("ORDER", "readyForSpeech");
+                followEng.setText("");
             }
 
             @Override
@@ -226,7 +228,7 @@ public class EnglishAppFragment extends Fragment {
                 if (str.get(0) == null) return;
 
                 if (isEng()) {
-                    postSpeech.setText(str.get(0));
+                    followEng.setText(str.get(0));
                     if (baseRunner().onCheckAnswer(getContext(), speechSct.getText().toString(), str.get(0), engIdx(), delay)) {
                         correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
                     } else {
@@ -415,6 +417,7 @@ public class EnglishAppFragment extends Fragment {
         blindBtn = rootView.findViewById(R.id.blind);
         correct = rootView.findViewById(R.id.correct);
         exampi = rootView.findViewById(R.id.exampi);
+        followEng = rootView.findViewById(R.id.followEng);
     }
 
     private boolean isEndOfLen() {
