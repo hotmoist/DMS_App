@@ -105,6 +105,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private TextView mSpeed;
     private TextView mGyroName;
     private TextView mGyroValue;
+    private TextView mAcc;
+    private TextView mCognitiveLoad;
 
     private com.google.android.material.button.MaterialButton appStartingBtn;
     public static ImageButton backToPrediction;
@@ -118,7 +120,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
      * 인지부하식 연산 관련 변수
      */
     private double cognitiveLoadVal;
-    private static final double OPTIMAL_COGNITIVE_LOAD_MAX = 70.0; // 적정 인지부하량
+    private static final double OPTIMAL_COGNITIVE_LOAD_MAX = 200.0; // 적정 인지부하량
 
     // firebase 관련 변수
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -191,13 +193,13 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 //        layout.setTranslationY((h - w) / 2);
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) layout.getLayoutParams();
-        lp.height = 650;
-        lp.width = 584;
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
+        mAcc = findViewById(R.id.accelerate);
+        mCognitiveLoad = findViewById(R.id.cognitive_capability_textview);
 
         fileNameEdit = findViewById(R.id.CSV_name);
         csvBtn = findViewById(R.id.start_csv);
@@ -524,11 +526,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 //        Value.RESULT = result.topNClassNames[0];
         mResultView.setResults(result.mResults);
         mResultView.invalidate();
+
         mSpeed.setText(String.format("%.2f km/h", Value.SPEED));
-        mGyroValue.setText(
-                String.format("X : %.2f ", Value.GYRO_X) +
-                        String.format("Y : %.2f ", Value.GYRO_Y) +
-                        String.format("Z : %.2f ", Value.GYRO_Z));
+        mGyroValue.setText(String.format("%.2f", Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2))));
+        mAcc.setText(Value.ACC+"Km/h^2");
+        mCognitiveLoad.setText(String.format("%.2f",Value.COGNITIVE_LOAD));
+
+        Value.RESULT = mResultText.getText().toString();
+
+
     }
 
     public double cognitiveLoadVal() {

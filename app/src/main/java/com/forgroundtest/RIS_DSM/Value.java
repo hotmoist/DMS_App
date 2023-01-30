@@ -13,6 +13,7 @@ public class Value {
     static public Long RESULT_START =0l;
     static public Long RESULT_END =0l;
     static public double COGNITIVE_LOAD = 0.0;
+    static public double DRIVER_SKILL = 1.0;
 
     static public String END="";
     static public String isCorrect="";

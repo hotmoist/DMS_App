@@ -359,13 +359,20 @@ public class BaseModuleActivity extends BlunoLibrary {
          */
         double cognitiveLoad = onCalculate();
         // setChangeCogLoad(cognitiveLoad);
-        setChangeCogLoad(count);
+        setChangeCogLoad(cognitiveLoad);
     }
 
     private double onCalculate() {
         // 인지부하 연산.
-
-        return 0;
+        double gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
+        double acc = Value.ACC;
+        double speed = Value.SPEED;
+        double cognitiveLoad =
+                Value.DRIVER_SKILL * (getResultweight(Value.RESULT)*100// 운전자 상태에 따른 가중치
+                        +(gyro*100+Math.abs(acc)+speed));
+        Value.COGNITIVE_LOAD= cognitiveLoad;
+        Log.d("cognitiveload", gyro + " "+acc + " "+speed + " "+gyro + " "+cognitiveLoad);
+        return cognitiveLoad;
     }
 
     private void setChangeCogLoad(double cognitiveLoad) {
@@ -444,5 +451,32 @@ public class BaseModuleActivity extends BlunoLibrary {
     public void onSerialReceived(String rString) {
         // 아두이노에서 입력받은 데이터 넣음
         recievedSB.append(rString);
+    }
+
+    public double getResultweight(String result){
+//        safe
+//drowsy driving
+//drinking
+//operate something
+//phone
+        double weight=0;
+        if(result.equals("safe")) {
+            weight = 1;
+        }
+        else if(result.equals("drowsy driving")) {
+            weight = 2.1;
+        }
+        else if(result.equals("drinking")) {
+            weight = 1.2;
+        }
+        else if(result.equals("operate something")) {
+            weight = 1.4;
+        }
+        else if(result.equals("phone")) {
+            weight = 1.35;
+        }
+        Log.d("predicted",result+" "+weight);
+        return weight;
+
     }
 }
