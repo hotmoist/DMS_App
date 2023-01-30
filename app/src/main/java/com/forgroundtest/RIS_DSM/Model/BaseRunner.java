@@ -13,6 +13,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.forgroundtest.RIS_DSM.BaseModuleActivity;
+import com.forgroundtest.RIS_DSM.Value;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -37,7 +38,7 @@ public class BaseRunner {
 
     }
 
-    public boolean onCheckAnswer(Context context, String realAnswer, String userAnswer, int index) {
+    public boolean onCheckAnswer(Context context, String realAnswer, String userAnswer, int index, double delay) {
         String realAn = realAnswer.toLowerCase();
         String userAn = userAnswer.toLowerCase();
         realAn = realAn.replaceAll(match, "");
@@ -57,6 +58,9 @@ public class BaseRunner {
                 isCorrect = true;
             }
         }
+
+        double incorrectRate = (double) cnt / realAnArr.length;
+        Value.ENG_REACT_WEIGHT = 0.5 * delay * (1 + incorrectRate);
 
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 

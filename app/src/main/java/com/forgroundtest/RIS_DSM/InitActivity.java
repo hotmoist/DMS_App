@@ -48,7 +48,9 @@ public class InitActivity extends AppCompatActivity {
     private long delay2 = 0;
     private long speechLen1 = 0;
     private long speechLen2 = 0;
+    private double reactTime = 0;
     private int index = 0;
+    private final String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
 
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -79,7 +81,7 @@ public class InitActivity extends AppCompatActivity {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
-                    int result = tts.setLanguage(Locale.KOREA);
+                    int result = tts.setLanguage(Locale.ENGLISH);
                     if(result == TextToSpeech.LANG_NOT_SUPPORTED || result == TextToSpeech.LANG_MISSING_DATA){
                         Log.e("TTS", "This Language is not supported");
                     }
@@ -126,7 +128,6 @@ public class InitActivity extends AppCompatActivity {
 //    }
 
     private void ttsInitialize() {
-        tts.setSpeechRate(1.50f);
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String s) {
@@ -168,7 +169,7 @@ public class InitActivity extends AppCompatActivity {
             public void onBeginningOfSpeech() {
                 delay2 = System.currentTimeMillis();
                 speechLen1 = System.currentTimeMillis();
-                Log.e("발화까지 걸리는 시간:", String.valueOf(delay2-delay1) + "초");
+                reactTime = (delay2-delay1) / 1000.0;
             }
 
             @Override
@@ -223,36 +224,38 @@ public class InitActivity extends AppCompatActivity {
     }
 
     private void answerCheck(String voice) {
-        voice = voice.replace("?", "").replace(".", "").toLowerCase();
-        String[] nBtest = NBack.nBack[index].split(" ");
+        voice = voice.toLowerCase();
+        voice = voice.replaceAll(match, "");
+        String nBtest = NBack.nBack[index].toLowerCase();
+        nBtest = nBtest.replaceAll(match, "");
 
-        while (voice.contains(" ")) {
-            voice = voice.replace(" ", "");
-        }
-        String[] string = voice.split("");
-
+        String[] nArr = nBtest.split("");
+        String[] vArr = voice.split("");
         int cnt = 0;
         boolean isCorrect = true;
 
-        if (string.length != nBtest.length) {
-            int sht = Math.min(string.length, nBtest.length);
+        if (nArr.length != vArr.length) {
+            int sht = Math.min(nArr.length, vArr.length);
             for (int wrong = 0; wrong < sht; wrong++) {
-                if (!string[wrong].equals(nBtest[wrong])) {
-                    cnt = wrong+1;
+                if (!nArr[wrong].equals(vArr[wrong])) {
+                    cnt++;
                     isCorrect = false;
                 }
             }
             if (isCorrect) {
-                cnt = sht;
+                cnt = nArr.length-sht;
             }
         } else {
-            for (int wrong = 0; wrong < string.length; wrong++) {
-                if (!string[wrong].equals(nBtest[wrong])) {
-                    cnt = wrong+1;
+            for (int wrong = 0; wrong < nArr.length; wrong++) {
+                if (!nArr[wrong].equals(vArr[wrong])) {
+                    cnt++;
                     isCorrect = false;
                 }
             }
         }
+
+        double incorrectRate = (double) cnt / nArr.length;
+        Value.REACT_WEIGHT = reactTime * (1 + incorrectRate);
 
         writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
     }
@@ -286,7 +289,7 @@ public class InitActivity extends AppCompatActivity {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.KOREA);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH);
         intent.putExtra("android.speech.extra.DICTATION_MODE", true);
 
         speechRecognizer.startListening(intent);
@@ -296,16 +299,16 @@ public class InitActivity extends AppCompatActivity {
     {
         testList = new ArrayList<SettingData>();
 
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 1"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 2"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 3"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 4"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 5"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 6"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 7"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 8"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 9"));
-        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "n-Back 테스트 10"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 1"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 2"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 3"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 4"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 5"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 6"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 7"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 8"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 9"));
+        testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 10"));
     }
 
     @Override

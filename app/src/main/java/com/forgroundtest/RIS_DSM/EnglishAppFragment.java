@@ -45,6 +45,9 @@ public class EnglishAppFragment extends Fragment {
     public static boolean isnBack = false;
     public static Button exampi;
     private long blankTime = 0L;
+    private long delay_1 = 0L;
+    private long delay_2 = 0L;
+    private double delay = 0.0;
 
     private boolean check=false;
     private Contents contents;
@@ -177,6 +180,10 @@ public class EnglishAppFragment extends Fragment {
 
             @Override
             public void onBeginningOfSpeech() {
+                if (isEng()) {
+                    delay_2 = System.currentTimeMillis();
+                    delay = (double) (delay_2-delay_1) / 1000.0;
+                }
                 Log.e("ORDER", "beginingOfSpeech");
             }
 
@@ -220,7 +227,7 @@ public class EnglishAppFragment extends Fragment {
 
                 if (isEng()) {
                     postSpeech.setText(str.get(0));
-                    if (baseRunner().onCheckAnswer(getContext(), speechSct.getText().toString(), str.get(0), engIdx())) {
+                    if (baseRunner().onCheckAnswer(getContext(), speechSct.getText().toString(), str.get(0), engIdx(), delay)) {
                         correct.setBackgroundResource(R.drawable.ic_baseline_check_24);
                     } else {
                         correct.setBackgroundResource(R.drawable.ic_baseline_priority_high_24);
@@ -351,6 +358,9 @@ public class EnglishAppFragment extends Fragment {
                         Log.e("TTS", "This Language is not supported");
                     } else {
                         setTTSUtterInitialize();
+                        if (isEng()) {
+                            delay_1 = System.currentTimeMillis();
+                        }
                         textToSpeech().speak(text, TextToSpeech.QUEUE_FLUSH, null, "");
                     }
                 } else {

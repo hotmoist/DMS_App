@@ -16,7 +16,7 @@ public class NBack {
 //        nBack[8] = "5 0 5 1 5 4 8"; // five zero nine one five four eight
 //        nBack[9] = "3 9 3 7 3 9 2"; // three nine three seven three nine two
 
-        nBackKor[0] = "일칠오구이구칠";
+        nBackKor[0] = "I am a student";
         nBackKor[1] = "일오육칠육일오";
         nBackKor[2] = "사육일사칠구칠";
         nBackKor[3] = "사삼오영오이칠";

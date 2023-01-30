@@ -367,11 +367,8 @@ public class BaseModuleActivity extends BlunoLibrary {
         double gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
         double acc = Value.ACC;
         double speed = Value.SPEED;
-        double cognitiveLoad =
-                Value.DRIVER_SKILL * (getResultweight(Value.RESULT)*100// 운전자 상태에 따른 가중치
+        return Value.ENG_REACT_WEIGHT * Value.DRIVER_SKILL * (getResultweight(Value.RESULT)*100// 운전자 상태에 따른 가중치
                         +(gyro*100+Math.abs(acc)+speed));
-        Value.COGNITIVE_LOAD= cognitiveLoad;
-        return cognitiveLoad;
     }
 
     private void setChangeCogLoad(double cognitiveLoad) {
