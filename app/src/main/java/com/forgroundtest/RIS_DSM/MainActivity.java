@@ -10,6 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 
+import java.util.Objects;
+
 /**
  * 최초 화면을 나타내는 Activity
  * layout : activity_main.xml
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Objects.requireNonNull(getSupportActionBar()).hide();
         findViewById(R.id.main_driving_start_button).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, InitActivity.class)));
         checkPermissions();
     }

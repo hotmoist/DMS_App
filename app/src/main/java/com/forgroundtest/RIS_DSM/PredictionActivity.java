@@ -184,6 +184,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         onCreateProcess();
         serialBegin(115200);
 
+        Objects.requireNonNull(getSupportActionBar()).hide();
+
         // 인지자원 페이지 90도 전환을 위함
         layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
         int w = layout.getWidth();
@@ -239,40 +241,6 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         onClickRunBtn();
         onClickBackBtn();
         setIsTransition(false);
-
-        // test용 upDown Button
-        testToCogIncre = findViewById(R.id.test_to_cog_incre);
-        testToCogIncre.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                count++;
-                Log.e("cog", count+"");
-            }
-        });
-        testToCogDecre = findViewById(R.id.test_to_cog_decre);
-        testToCogDecre.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                count--;
-                Log.e("cog", count+"");
-            }
-        });
-
-        expert = findViewById(R.id.up);
-        expert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Value.DRIVER_SKILL = 1;
-            }
-        });
-
-        novice = findViewById(R.id.down);
-        novice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Value.DRIVER_SKILL = 1.2;
-            }
-        });
     }
 
     private void onStartFragChange() {

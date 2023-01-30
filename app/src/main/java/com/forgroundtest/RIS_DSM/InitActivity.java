@@ -4,9 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,14 +20,19 @@ import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * 운전자의 상태 파악을 위한 Activity
@@ -51,13 +58,22 @@ public class InitActivity extends AppCompatActivity {
     private double reactTime = 0;
     private int index = 0;
     private final String match = "[^\uAC00-\uD7A30-9a-zA-Z]";
+    private TextView initManager;
+    private TextView noviceBtn;
+    private TextView experiencedBtn;
+    private boolean isSelect = false;
+    private com.google.android.material.button.MaterialButton reactBtn;
+    private TextView manageText;
+    private Button startMonitoringBtn;
 
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
+        Objects.requireNonNull(getSupportActionBar()).hide();
         findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, PredictionActivity.class) ));
 
         // index init
@@ -76,6 +92,43 @@ public class InitActivity extends AppCompatActivity {
         mDatabase.child("study").child("isNBackTest").setValue(false);
 
         EnglishAppFragment.engIdx = 1;
+        initManager = findViewById(R.id.managerOfInit);
+        initManager.setText("Choose your driving proficiency.");
+
+        noviceBtn = findViewById(R.id.noviceBtn);
+        experiencedBtn = findViewById(R.id.experiencedBtn);
+        reactBtn = findViewById(R.id.reactBtn);
+        manageText = findViewById(R.id.manageText);
+        startMonitoringBtn = findViewById(R.id.init_start_monitoring_button);
+
+        reactBtn.setText("반응성 테스트 진행");
+        reactBtn.setVisibility(View.INVISIBLE);
+        startMonitoringBtn.setVisibility(View.INVISIBLE);
+
+        noviceBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initManage(noviceBtn, experiencedBtn);
+                Value.DRIVER_SKILL = 1.2;
+            }
+        });
+
+
+        experiencedBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                initManage(experiencedBtn, noviceBtn);
+                Value.DRIVER_SKILL = 1.0;
+            }
+        });
+
+        reactBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                manageText.setText("문장을 따라해주세요");
+                speak(NBack.nBackKor[index]);
+            }
+        });
 
         tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -94,20 +147,6 @@ public class InitActivity extends AppCompatActivity {
 
         sttInitialize();
 
-        InitializeSettingData();
-        ListView listView = findViewById(R.id.testView);
-        final Adapter myAdapter = new Adapter(this, testList);
-
-        listView.setAdapter(myAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                index = position;
-                speak(NBack.nBackKor[position]);
-                Log.e("nBack", String.valueOf(position));
-            }
-        });
 
 //        requestRecordAudioPermission();
 
@@ -226,7 +265,7 @@ public class InitActivity extends AppCompatActivity {
     private void answerCheck(String voice) {
         voice = voice.toLowerCase();
         voice = voice.replaceAll(match, "");
-        String nBtest = NBack.nBack[index].toLowerCase();
+        String nBtest = NBack.nBackKor[index].toLowerCase();
         nBtest = nBtest.replaceAll(match, "");
 
         String[] nArr = nBtest.split("");
@@ -283,6 +322,14 @@ public class InitActivity extends AppCompatActivity {
         Value.isCorrect = String.valueOf(isCorrect);
         Value.delayToSpeak = String.valueOf(delayToSpeak);
         Value.delayDuringSpeak = String.valueOf(delayDuringSpeak);
+
+        Intent intent = new Intent(this, LoadingActivity.class);
+        startActivity(intent);
+
+        manageText.setText("");
+
+        reactBtn.setVisibility(View.INVISIBLE);
+        startMonitoringBtn.setVisibility(View.VISIBLE);
     }
 
     private void startListen() {
@@ -309,6 +356,20 @@ public class InitActivity extends AppCompatActivity {
         testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 8"));
         testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 9"));
         testList.add(new SettingData(R.drawable.ic_baseline_speaker_notes, "반응성 테스트 10"));
+    }
+
+    private void initManage(TextView btn1, TextView btn2) {
+        if (!isSelect) {
+            btn1.setBackgroundColor(Color.parseColor("#f8f8ff"));
+            isSelect = true;
+            btn2.setVisibility(View.INVISIBLE);
+            reactBtn.setVisibility(View.VISIBLE);
+        } else {
+            btn1.setBackgroundColor(Color.parseColor("#464646"));
+            isSelect = false;
+            btn2.setVisibility(View.VISIBLE);
+            reactBtn.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override

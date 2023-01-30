@@ -18,22 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/englishAppView" />
 
-    <ImageButton
-        android:id="@+id/test_to_cog_incre"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        app:layout_constraintLeft_toRightOf="@+id/backToPrediction"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-    <ImageButton
-        android:id="@+id/test_to_cog_decre"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        app:layout_constraintLeft_toRightOf="@+id/test_to_cog_incre"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/englishAppView"
         android:layout_width="match_parent"
