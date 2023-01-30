@@ -371,7 +371,6 @@ public class BaseModuleActivity extends BlunoLibrary {
                 Value.DRIVER_SKILL * (getResultweight(Value.RESULT)*100// 운전자 상태에 따른 가중치
                         +(gyro*100+Math.abs(acc)+speed));
         Value.COGNITIVE_LOAD= cognitiveLoad;
-        Log.d("cognitiveload", gyro + " "+acc + " "+speed + " "+gyro + " "+cognitiveLoad);
         return cognitiveLoad;
     }
 

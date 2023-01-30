@@ -133,6 +133,8 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private boolean isTransition;
 
     private Button soundTestBtn;
+    private Button expert;
+    private Button novice;
 
     @Override
     protected int getContentViewLayoutId() {
@@ -253,6 +255,22 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
             public void onClick(View view) {
                 count--;
                 Log.e("cog", count+"");
+            }
+        });
+
+        expert = findViewById(R.id.up);
+        expert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Value.DRIVER_SKILL = 1;
+            }
+        });
+
+        novice = findViewById(R.id.down);
+        novice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Value.DRIVER_SKILL = 1.2;
             }
         });
     }

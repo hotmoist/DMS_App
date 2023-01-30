@@ -157,12 +157,29 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
+                    android:textSize="10dp"
                     android:text="CSV.csv"/>
                 <Button
                     android:id="@+id/start_csv"
-                    android:layout_width="wrap_content"
+                    android:layout_width="80dp"
                     android:layout_height="wrap_content"
+                    android:textSize="10dp"
                     android:text="기록 버튼"/>
+                <Button
+                    android:id="@+id/down"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
+                    android:textSize="10dp"
+
+                    android:text="초보자"/>
+                <Button
+                    android:id="@+id/up"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="10dp"
+
+                    android:text="숙련자"/>
         </LinearLayout>
     </LinearLayout>
 
