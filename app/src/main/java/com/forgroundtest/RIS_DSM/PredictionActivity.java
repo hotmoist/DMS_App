@@ -108,6 +108,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     }
 
     private TextView mResultText;
+    private TextView mDrivingStateText;
 
     private boolean mAnalyzeImageErrorState;
     private Module mModule;
@@ -119,11 +120,14 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
     private Queue<Long> mMovingAvgQueue = new LinkedList<>();
 
     private LinearLayout layout;
+    private LinearLayout mdriving_skill;
 
+    private TextView mdriving_skill_level;
     private TextView mGPSName;
     private TextView mSpeed;
     private TextView mGyroName;
     private TextView mGyroValue;
+    private TextView mAcc;
     private TextView mCognitiveLoad;
     private TextView mdriverState;
     private TextView mCognitiveCapability;
@@ -222,25 +226,38 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         layout.requestLayout();
 
         mResultText = findViewById(R.id.prediction_result_textview);
+        mDrivingStateText = findViewById(R.id.driving_state);
         mSpeed = findViewById(R.id.speed_textview);
         mGyroValue = findViewById(R.id.gyro_textview);
         mCognitiveLoad = findViewById(R.id.result_textview);
         predictionView = findViewById(R.id.prediction_view);
         mdriverState = findViewById(R.id.driver_state);
         mCognitiveCapability = findViewById(R.id.cognitive_capability_textview);
+        mAcc = findViewById(R.id.accelerate_text);
 
+        mdriving_skill = findViewById(R.id.driving_skill);
+        mdriving_skill_level = findViewById(R.id.driving_skill_level);
         up = findViewById(R.id.up);
+        down = findViewById(R.id.down);
+
         up.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 testScore=1;
+                up.setVisibility(View.GONE);
+                down.setVisibility(View.GONE);
+                mdriving_skill.setVisibility(View.VISIBLE);
+                mdriving_skill_level.setText("EXPERIENCED");
             }
         });
-        down = findViewById(R.id.down);
         down.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 testScore=1.2;
+                up.setVisibility(View.GONE);
+                down.setVisibility(View.GONE);
+                mdriving_skill.setVisibility(View.VISIBLE);
+
             }
         });
 //        fileNameEdit = findViewById(R.id.CSV_name);
@@ -527,6 +544,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         mResultView.setResults(result.mResults);
         mResultView.invalidate();
         mSpeed.setText(String.format("%.2f km/h", Value.SPEED));
+        mAcc.setText(String.format("%.2f km/h^2", Value.ACC));
         gyro = Math.sqrt(Math.pow((double)Value.GYRO_X,2)+Math.pow((double)Value.GYRO_Y,2)+Math.pow((double)Value.GYRO_Z,2));
         mGyroValue.setText(
                 String.format("%.2f ", gyro) );
@@ -543,6 +561,15 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
         mCognitiveLoad.setText(""+(int)cognitiveLoad);
         mdriverState.setText(""+getResultweight(mResultText.getText().toString()));
+        if(Value.SPEED == 0.0){
+            mDrivingStateText.setText("정지");
+        }else if(Value.SPEED > 0){
+            if(gyro>0.1) {
+                mDrivingStateText.setText("회전");
+            }else {
+                mDrivingStateText.setText("직진");
+            }
+        }
         if(cognitiveLoad>200){
             predictionView.setBackgroundColor(Color.parseColor("#ff0000"));
             mCognitiveCapability.setText("HIGHT");
