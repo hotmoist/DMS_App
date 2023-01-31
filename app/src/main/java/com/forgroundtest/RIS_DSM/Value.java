@@ -16,6 +16,7 @@ public class Value {
     static public double DRIVER_SKILL = 1.0;
     static public double REACT_WEIGHT = 1.0;
     static public double ENG_REACT_WEIGHT = 1.0;
+    static public boolean ISLEARNING = false;
 
     static public String END="";
     static public String isCorrect="";

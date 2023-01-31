@@ -245,6 +245,7 @@ public class EnglishAppFragment extends Fragment {
                         setIsEng(true);
                         onTurnPage();
                     } else if (answer < 0) {
+                        Value.ISLEARNING = false;
                         PredictionActivity.backToPrediction.callOnClick();
                     } else {
                         onSpeakTTS(contents().againTest());

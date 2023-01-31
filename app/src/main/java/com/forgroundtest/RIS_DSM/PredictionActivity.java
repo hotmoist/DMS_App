@@ -184,7 +184,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
         onCreateProcess();
         serialBegin(115200);
 
-        Objects.requireNonNull(getSupportActionBar()).hide();
+        getSupportActionBar().hide();
 
         // 인지자원 페이지 90도 전환을 위함
         layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
@@ -255,6 +255,11 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                     if (!isTransition()) {
                         setIsTransition(true);
                     }
+                    if (Value.ISLEARNING) {
+                        return;
+                    }
+
+                    Value.ISLEARNING = true;
                     turnOnEngPrag();
                 }
                 onChangeBackGroundColor(cognitiveLoadVal());
@@ -560,6 +565,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
                 if (!isSafe()) {
                     return; // 안정된 인지부하인 경우에만 영어 학습 어플로 넘어가기
                 }
+                Value.ISLEARNING = true;
                 turnOnEngPrag();
             }
         });

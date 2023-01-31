@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Objects.requireNonNull(getSupportActionBar()).hide();
+        getSupportActionBar().hide();
         findViewById(R.id.main_driving_start_button).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, InitActivity.class)));
         checkPermissions();
     }

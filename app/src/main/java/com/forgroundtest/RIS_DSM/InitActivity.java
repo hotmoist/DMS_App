@@ -73,7 +73,7 @@ public class InitActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_init);
-        Objects.requireNonNull(getSupportActionBar()).hide();
+        getSupportActionBar().hide();
         findViewById(R.id.init_start_monitoring_button).setOnClickListener(v -> startActivity(new Intent(InitActivity.this, PredictionActivity.class) ));
 
         // index init
