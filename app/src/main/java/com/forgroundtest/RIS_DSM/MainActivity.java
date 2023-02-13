@@ -23,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().hide();
+        if(getSupportActionBar() != null){
+            getSupportActionBar().hide();
+        }
         findViewById(R.id.main_driving_start_button).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, InitActivity.class)));
         checkPermissions();
     }

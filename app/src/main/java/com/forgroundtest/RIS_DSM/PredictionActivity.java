@@ -183,8 +183,9 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
 
         onCreateProcess();
         serialBegin(115200);
-
-        getSupportActionBar().hide();
+        if(getSupportActionBar() != null){
+            getSupportActionBar().hide();
+        }
 
         // 인지자원 페이지 90도 전환을 위함
         layout = (LinearLayout) findViewById(R.id.cognitive_result_layout);
