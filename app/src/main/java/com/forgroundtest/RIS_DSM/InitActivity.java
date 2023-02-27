@@ -1,16 +1,12 @@
 package com.forgroundtest.RIS_DSM;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -19,20 +15,15 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Objects;
 
 /**
  * 운전자의 상태 파악을 위한 Activity
@@ -147,11 +138,11 @@ public class InitActivity extends AppCompatActivity {
 
         sttInitialize();
 
-
 //        requestRecordAudioPermission();
-
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        audioManager.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
+//
+        // 비프음 뮤트
+//        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        audioManager.adjustStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
     }
 
 //    private void requestRecordAudioPermission() {
@@ -294,7 +285,7 @@ public class InitActivity extends AppCompatActivity {
         }
 
         double incorrectRate = (double) cnt / nArr.length;
-        Value.REACT_WEIGHT = reactTime * (1 + incorrectRate);
+        Value.REACT_WEIGHT = 1;
 
         writeNewBackTest(cnt, isCorrect, (int) (delay2-delay1), (int) (speechLen2-speechLen1));
     }

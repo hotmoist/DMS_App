@@ -120,7 +120,7 @@ public class PredictionActivity extends AbstractCameraXActivity<PredictionActivi
      * 인지부하식 연산 관련 변수
      */
     private double cognitiveLoadVal;
-    private static final double OPTIMAL_COGNITIVE_LOAD_MAX = 200.0 * Value.REACT_WEIGHT; // 적정 인지부하량
+    private static final double OPTIMAL_COGNITIVE_LOAD_MAX = 200.0 / Value.ENG_REACT_WEIGHT; // 적정 인지부하량
 
     // firebase 관련 변수
     private final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();

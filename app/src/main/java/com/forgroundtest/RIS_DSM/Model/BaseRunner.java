@@ -60,7 +60,7 @@ public class BaseRunner {
         }
 
         double incorrectRate = (double) cnt / realAnArr.length;
-        Value.ENG_REACT_WEIGHT = 0.5 * delay * (1 + incorrectRate);
+        Value.ENG_REACT_WEIGHT =  1 + Math.log10(1+((delay/10)*(delay/10)))*incorrectRate;
 
         Log.e("틀린 단어의 개수:", String.valueOf(cnt));
 
